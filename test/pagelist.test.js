@@ -43,6 +43,35 @@ describe( 'last range before', () => {
 	);
 } );
 
+describe( 'next range after', () => {
+
+	const pl = new PL.Pagelist();
+
+	const r20to30 = new PL.NumericRange( 20, 30, 100 );
+
+	pl.addRange( r20to30 );
+
+	assert.deepEqual(
+		pl.getNextRangeAfter( 1 ),
+		r20to30
+	);
+
+	assert.deepEqual(
+		pl.getNextRangeAfter( 20 ),
+		null
+	);
+
+	assert.deepEqual(
+		pl.getNextRangeAfter( 30 ),
+		null
+	);
+
+	assert.deepEqual(
+		pl.getNextRangeAfter( 31 ),
+		null
+	);
+} );
+
 describe( 'Page range consistency', () => {
 
 	it( 'literal', function () {

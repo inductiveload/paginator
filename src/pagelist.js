@@ -34,7 +34,7 @@ class PageRange {
 		if ( position < this.from ) {
 			// move the start and re-root the number
 			this.from = position;
-			this.start += offset;
+			this.startValue += offset;
 		} else {
 			// just moving the end point
 			this.to = position;
@@ -55,8 +55,16 @@ class NumericRange extends PageRange {
 	}
 
 	getNumericValue( value ) {
+		if ( Number.isInteger( value ) ) {
+			return value;
+		}
+
 		if ( this.format === 'arabic' ) {
 			return parseInt( value );
+		}
+
+		if ( this.format === 'roman' || this.format === 'highroman' ) {
+			return Roman.romanToInt( value );
 		}
 
 		throw new Error( `Unkwown format: ${this.format}` );
@@ -85,11 +93,21 @@ class NumericRange extends PageRange {
 		return true;
 	}
 
+	getFirstPossiblePriorConsistentPos() {
+		if ( this.startValue > 1 ) {
+			console.log( this );
+			// this is the position that 1 should be in
+			return Math.max( 1, this.from - ( this.startValue - 1 ) );
+		}
+		// already starts at 1
+		return null;
+	}
+
 	getAttrStrings() {
 		const strs = [ `${this.from}=${this.startValue}` ];
 		if ( this.format !== 'arabic' ) {
 			const format = this.format;
-			strs.push( `${this.from}to${this.to}=${format}` );
+			strs.push( `${this.from}to${this.to}="${format}"` );
 		}
 		return strs;
 	}
@@ -114,7 +132,19 @@ class LiteralRange extends PageRange {
 		return ( position >= this.from - 1 ) && ( position <= this.to + 1 );
 	}
 
+	getFirstPossiblePriorConsistentPos() {
+		if ( this.from > 1 ) {
+			// best we can do is suggest the previous page
+			return this.from - 1;
+		}
+		return null;
+	}
+
 	getAttrStrings() {
+
+		if ( this.from === this.to ) {
+			return [ `${this.from}="${this.value}"` ];
+		}
 		return [ `${this.from}to${this.to}="${this.value}"` ];
 	}
 }
@@ -164,6 +194,11 @@ class Pagelist {
 		insertSorted( this.ranges, range, ( a, b ) => a.from - b.from );
 	}
 
+	/**
+	 * Get the last range that _Starts_ before the given point (even it ends after)
+	 * @param {int} point
+	 * @returns {PageRange|null}
+	 */
 	getLastRangeBefore( point ) {
 		if ( this.ranges.length === 0 ) {
 			return null;
@@ -184,6 +219,29 @@ class Pagelist {
 		}
 
 		return last;
+	}
+
+	/**
+	 * Get the next range that _Starts_ after the given point
+	 * @param {int} point
+	 * @returns {PageRange|null}
+	 */
+	getNextRangeAfter( point ) {
+		if ( this.ranges.length === 0 ) {
+			return null;
+		}
+
+		let next = null;
+
+		for ( let i = this.ranges.length - 1; i >= 0; --i ) {
+			const pr = this.ranges[ i ];
+			if ( pr.from <= point ) {
+				break;
+			}
+			next = pr;
+		}
+
+		return next;
 	}
 
 	findFirstConsistentRangeFor( position, value ) {

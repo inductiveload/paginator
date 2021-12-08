@@ -153,23 +153,59 @@ class Paginator {
 
 		// now, find if the page list has a range that might extend into this
 		// uncertainty range
-		const lastRange = this.pagelist.getLastRangeBefore( uc.from );
 
 		const proposals = [];
 		let queriedPosition;
 
-		if ( lastRange !== null ) {
-			// there's a range before us, so see if we can join it up
+		const nextRange = this.pagelist.getNextRangeAfter( uc.to );
+		const lastRange = this.pagelist.getLastRangeBefore( uc.from );
 
-			// TODO: we can propose consistent options here
-
-			// If the
-			if ( lastRange.longRangeConsistent() ) {
-				queriedPosition = uc.to;
-			} else {
-				queriedPosition = uc.from;
+		if ( lastRange !== null && nextRange !== null ) {
+			// We are between two ranges. They must be inconsistent, or they'd already
+			// be merged.
+			// If both ranges are "long-range consistent", we will
+			// try to meet in the middle, which should result in a binary search for the join
+			if ( lastRange.longRangeConsistent() && nextRange.longRangeConsistent() ) {
+				queriedPosition = Math.round( ( lastRange.to + nextRange.from ) / 2 );
 			}
-		} else {
+		}
+
+		// Then, see if there's a range AFTER us that we can provide a start for
+		// (for example, we have a confirmed page 10 @ pos 20, we will
+		// check pos 11 to see if it starts at 1)
+
+		if ( queriedPosition === undefined && nextRange !== null ) {
+			const cand = nextRange.getFirstPossiblePriorConsistentPos();
+			if ( cand ) {
+				// extend the next range only as far as won't collide with an existing range
+				let minPos = 1;
+				if ( lastRange !== null ) {
+					minPos = lastRange.to + 1;
+				}
+				queriedPosition = Math.max( minPos, cand );
+			}
+		}
+
+		if ( queriedPosition === undefined ) {
+
+			if ( lastRange !== null ) {
+				// there's a range before us, so see if we can join it up
+
+				// TODO: we can propose consistent options here
+
+				console.log(`Last range: ${lastRange.from}` );
+
+				// If the range is long-range consistent, go as far as we can
+				if ( lastRange.longRangeConsistent() ) {
+					queriedPosition = uc.to;
+				} else {
+					// otherwise, just nibble at the front
+					queriedPosition = uc.from;
+				}
+			}
+		}
+
+		if ( queriedPosition === undefined ) {
 			// no useful range before us, so all we can do is try to start a new range here
 
 			// TODO: it is possible to provide some useful guesses as to possible answers
@@ -228,24 +264,25 @@ class Paginator {
 		} else {
 			// we have some page ranges in the list already - see if the answer fits with
 			// any of them
+			console.log( `Finding consistency for @${position} = ${value}` );
 			const consistentRange = this.pagelist.findFirstConsistentRangeFor( position, value );
 
 			if ( consistentRange ) {
 				// Integrate the answer into the range
 				consistentRange.integrate( position, value );
 
-				// console.log( `2 Updated range @${position} = ${value}` );
+				console.log( `2 Consistent: updated range @${position} = ${value}` );
 				this.handleNewPageRange( consistentRange );
 			} else {
 				// Start a new range at this point
 				const newRange = Pagelist.createPageRange( position, position, value );
 				this.pagelist.addRange( newRange );
 
-				// console.log( `3 Added range @${position} = ${value}` );
+				console.log( `3: Inconsistency: added range @${position} = ${value}` );
 				this.handleNewPageRange( newRange );
 			}
 		}
-		// this.printUncertainties();
+		this.printUncertainties();
 	}
 }
 
