@@ -127,6 +127,7 @@ class Paginator {
 		if ( !numPages ) {
 			throw new Error( 'Need at least one page' );
 		}
+		this.numPages = numPages;
 
 		// Start with the whole range as unknown
 		this.uncertainties = [
@@ -154,8 +155,12 @@ class Paginator {
 		// now, find if the page list has a range that might extend into this
 		// uncertainty range
 
-		const proposals = [];
+		let proposals = [];
 		let queriedPosition;
+
+		// List of further positions that might be wanted
+		// for example (but not neccesarily) if the user chooses one of the propoals
+		let suggestedPositions = [];
 
 		const nextRange = this.pagelist.getNextRangeAfter( uc.to );
 		const lastRange = this.pagelist.getLastRangeBefore( uc.from );
@@ -167,6 +172,13 @@ class Paginator {
 			// try to meet in the middle, which should result in a binary search for the join
 			if ( lastRange.longRangeConsistent() && nextRange.longRangeConsistent() ) {
 				queriedPosition = Math.round( ( lastRange.to + nextRange.from ) / 2 );
+
+				// The proposals could be consistent with either end of the range
+				// (or maybe neither)
+				proposals.push(
+					lastRange.formatPosition( queriedPosition ),
+					nextRange.formatPosition( queriedPosition )
+				);
 			}
 		}
 
@@ -183,6 +195,10 @@ class Paginator {
 					minPos = lastRange.to + 1;
 				}
 				queriedPosition = Math.max( minPos, cand );
+
+				proposals.push(
+					nextRange.formatPosition( queriedPosition )
+				);
 			}
 		}
 
@@ -191,35 +207,48 @@ class Paginator {
 			if ( lastRange !== null ) {
 				// there's a range before us, so see if we can join it up
 
-				// TODO: we can propose consistent options here
-
-				console.log(`Last range: ${lastRange.from}` );
-
 				// If the range is long-range consistent, go as far as we can
 				if ( lastRange.longRangeConsistent() ) {
 					queriedPosition = uc.to;
 				} else {
-					// otherwise, just nibble at the front
+					// otherwise, just nibble at it the front
 					queriedPosition = uc.from;
 				}
+
+				proposals.push(
+					lastRange.formatPosition( queriedPosition )
+				);
 			}
 		}
 
 		if ( queriedPosition === undefined ) {
 			// no useful range before us, so all we can do is try to start a new range here
-
-			// TODO: it is possible to provide some useful guesses as to possible answers
-			proposals.push( '–', 'Img' );
-			proposals.push( 'Title' );
-			proposals.push( 'Cover' );
-
 			// we can only really ask about the first uncertain page
 			queriedPosition = uc.from;
+
+			// We have no idea about plausible numbering, so nthing to do here
 		}
+
+		// These proposals are usually plausible
+		proposals.push( '–', 'Img', 'Adv', 'ToC', 'Title', 'Cover' );
+
+		// Filter out dupes
+		proposals = [ ...new Set( proposals ) ];
+		proposals.sort();
+
+		if ( queriedPosition > 1 ) {
+			suggestedPositions.push( queriedPosition - 1 );
+		}
+		if ( queriedPosition < this.numPages ) {
+			suggestedPositions.push( queriedPosition + 1 );
+		}
+
+		suggestedPositions = [ ...new Set( suggestedPositions ) ];
 
 		return {
 			position: queriedPosition,
-			proposals: proposals
+			proposals,
+			suggestedPositions
 		};
 	}
 
@@ -253,6 +282,12 @@ class Paginator {
 	 * Receive an answer for a given page position and try to slot it in
 	 */
 	addAnswer( position, value ) {
+
+		// Pre-process the text
+		if ( value === '-' ) {
+			value = '–';
+		}
+
 		if ( this.pagelist.ranges.length === 0 ) {
 			// no page ranges, so create one
 

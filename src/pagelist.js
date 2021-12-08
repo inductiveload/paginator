@@ -111,6 +111,23 @@ class NumericRange extends PageRange {
 		}
 		return strs;
 	}
+
+	formatPosition( position ) {
+		const positionOffset = position - this.from;
+		if ( this.format === 'arabic' ) {
+			return this.startValue + ( positionOffset );
+		}
+
+		if ( this.format === 'roman' ) {
+			return Roman.intToRoman( positionOffset ).toLowerCase();
+		}
+
+		if ( this.format === 'highroman' ) {
+			return Roman.intToRoman( positionOffset ).toUpperCase();
+		}
+
+		throw new Error( `Unkwown format: ${this.format}` );
+	}
 }
 
 class LiteralRange extends PageRange {
@@ -146,6 +163,10 @@ class LiteralRange extends PageRange {
 			return [ `${this.from}="${this.value}"` ];
 		}
 		return [ `${this.from}to${this.to}="${this.value}"` ];
+	}
+
+	formatPosition() {
+		return this.value;
 	}
 }
 

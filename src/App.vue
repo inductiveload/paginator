@@ -1,24 +1,34 @@
 <template>
-	<img alt="Vue logo" src="./assets/logo.png">
-	<HelloWorld msg="Welcome to Your Vue.js App"/>
-	<PageViewer
-		:image-url='url'
-	/>
+	<div
+		class="outer"
+	>
+		<HelloWorld msg="Welcome to The Page Game"/>
+		<SetupForm
+			@indexChanged="indexChanged($event)"
+		/>
+		<Paginator
+		/>
+		<PageViewer
+		/>
+	</div>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld.vue';
 import PageViewer from './components/PageViewer.vue';
+import SetupForm from './components/SetupForm.vue';
+import Paginator from './components/Paginator.vue';
 
 export default {
-	name: 'Paginator',
+	name: 'PaginatorApp',
 	components: {
 		HelloWorld,
-		PageViewer
+		PageViewer,
+		SetupForm,
+		Paginator
 	},
 	data() {
 		return {
-			url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Blackwood%27s_Magazine_volume_039.djvu/page89-1838px-Blackwood%27s_Magazine_volume_039.djvu.jpg'
 		};
 	}
 };
@@ -31,6 +41,24 @@ export default {
 	-moz-osx-font-smoothing: grayscale;
 	text-align: center;
 	color: #2c3e50;
-	margin-top: 60px;
+	height: 100vh;
+}
+
+.outer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+html {
+  /* body will set it's height based on its parent, which is html */
+  height: 100%;
+
+  /* set full width as well */
+  width: 100%;
+}
+
+html,body {
+  box-sizing: border-box;
 }
 </style>
