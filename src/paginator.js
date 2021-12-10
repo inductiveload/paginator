@@ -1,76 +1,5 @@
 const Pagelist = require( './pagelist.js' );
 
-function insertSorted( array, element, comparator ) {
-	let i = 0;
-	while ( i < array.length && comparator( array[ i ], element ) < 0 ) {
-		++i;
-	}
-	array.splice( i, 0, element );
-}
-
-class SureRange {
-	constructor( from, to ) {
-		this.from = from;
-		this.to = to;
-	}
-
-	length() {
-		return this.to - this.from + 1;
-	}
-
-	extendToInclude( n ) {
-		if ( n < this.from ) {
-			this.from = n;
-		} else if ( n > this.to ) {
-			this.to = n;
-		}
-	}
-
-	includes( n ) {
-		return n >= this.from && n <= this.to;
-	}
-}
-
-class SureSet {
-	constructor() {
-		this.ranges = [];
-	}
-
-	addRange( r ) {
-		insertSorted( this.ranges, r, ( a, b ) => a.from - b.from );
-	}
-
-	/**
-	 * @param {int} n
-	 * @returns if any current range contains n
-	 */
-	includes( n ) {
-		for ( const r of this.ranges ) {
-			if ( r.includes( n ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	nextUnincluded( n ) {
-		for ( const r of this.ranges ) {
-			// skip ranges behind the value
-			if ( r.to < n ) {
-				continue;
-			}
-
-			// N is not in this range
-			if ( r.from > n ) {
-				return n;
-			}
-
-			n = r.to + 1;
-		}
-		return n;
-	}
-}
-
 /**
  * Represents an interval of uncertainty
  *
@@ -323,7 +252,5 @@ class Paginator {
 
 module.exports = {
 	Paginator: Paginator,
-	SureSet: SureSet,
-	SureRange: SureRange,
 	UncertainInterval: UncertainInterval
 };

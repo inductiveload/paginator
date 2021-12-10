@@ -3,27 +3,6 @@ const { UncertainInterval } = require( '../src/paginator.js' );
 
 const P = require( '../src/paginator.js' );
 
-describe( 'Simple SureRange', () => {
-
-	it( 'unincluded', function () {
-
-		const ss = new P.SureSet();
-
-		ss.addRange( new P.SureRange( 1, 1 ) );
-
-		assert.equal( ss.nextUnincluded( 1 ), 2 );
-
-		ss.addRange( new P.SureRange( 2, 2 ) );
-		ss.addRange( new P.SureRange( 4, 5 ) );
-
-		assert.equal( ss.nextUnincluded( 1 ), 3 );
-		assert.equal( ss.nextUnincluded( 4 ), 6 );
-		assert.equal( ss.nextUnincluded( 5 ), 6 );
-		assert.equal( ss.nextUnincluded( 6 ), 6 );
-		assert.equal( ss.nextUnincluded( 7 ), 7 );
-	} );
-} );
-
 describe( 'Simple UncertainInterval', () => {
 
 	const init = new P.UncertainInterval( 1, 100 );
@@ -71,7 +50,7 @@ describe( 'Paginator', () => {
 
 			const paginator = new P.Paginator( testCase.length );
 
-			function itTestQuestion( i, qaInfo, question ) {
+			const itTestQuestion = ( i, qaInfo, question, complete ) => {
 				const desc = qaInfo.position ? ( qaInfo.position + '=' + qaInfo.response ) : 'null';
 
 				it( `Get Question #${i} -> ${desc}`, () => {
@@ -79,19 +58,23 @@ describe( 'Paginator', () => {
 					if ( qaInfo.position === null ) {
 						assert.equal( question, null );
 					} else {
+						assert.notEqual( question, null );
+						assert.equal( complete, false );
 						assert.equal( question.position, qaInfo.position );
 					}
 				} );
-			}
+			};
 
 			for ( let i = 0; i < testCase.qAndAns.length; ++i ) {
 				const qaInfo = testCase.qAndAns[ i ];
 
 				// Get the next question
 				const question = paginator.nextQuestion();
+				const complete = paginator.isComplete();
 
+				// console.log(paginator.pagelist);
 				// Test that it is what we expect
-				itTestQuestion( i, qaInfo, question );
+				itTestQuestion( i, qaInfo, question, complete );
 
 				if ( question !== null ) {
 					// Feed the canned response back
@@ -128,7 +111,7 @@ describe( 'Paginator', () => {
 	const testCaseBasic = {
 		name: 'C--12345--C',
 		length: 10,
-		tag: '<pagelist 1="Cover" 2to3="-" 4=1 9="-" 10="Cover" />',
+		tag: '<pagelist 1="Cover" 2to3="–" 4=1 9="–" 10="Cover" />',
 		qAndAns: [
 			// The first several will just count though the front matter
 			{
@@ -306,9 +289,9 @@ describe( 'Paginator', () => {
 	 * 1  2  3  4  Img -  5  6  7  8
 	 */
 	const testCaseDiscontinuousPlates = {
-		name: 'Dicontinuity (plate pages breaking up numering)',
+		name: 'Dicontinuity (plate pages breaking up numbering',
 		length: 10,
-		tag: '<pagelist 1=1 5="Img" 6="-" 7=5 />',
+		tag: '<pagelist 1=1 5="Img" 6="–" 7=5 />',
 		qAndAns: [
 			{
 				position: 1,
