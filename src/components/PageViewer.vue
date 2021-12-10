@@ -8,28 +8,42 @@
 <script>
 const OpenSeadragon = require( 'openseadragon' );
 
-const zoomIn = require( '@/assets/zoomIn.svg' );
+import { mapState } from 'vuex';
 
 export default {
 	name: 'PageViewer',
 	computed: {
-		filePageUrl() {
-			const ii = this.$store.state.paginationProcess.currentImageInfo;
-			if ( ii ) {
-				// de-proxifiy or something IDK lol
-				return JSON.parse( JSON.stringify( ii ) ).thumburl;
-			}
-			return null;
-		}
+		...mapState( {
+			currentPage: ( state ) => state.paginationProcess.currentPage,
+			viewOffset: ( state ) => state.paginationProcess.viewOffset,
+			changeIndex: ( state ) => state.index.name
+		} )
 	},
 	watch: {
-		filePageUrl: function ( newVal ) {
-			if ( !newVal ) {
-				return;
-			}
+		changeIndex() {
+			this.reload();
+		},
+		currentPage() {
+			this.reload();
+		},
+		viewOffset() {
+			this.reload();
+		}
+	},
+	methods: {
+		reload: async function () {
+
+			const offset = Math.max(
+				1,
+				this.$store.state.paginationProcess.currentPage +
+				this.$store.state.paginationProcess.viewOffset
+			);
+
+			const ii = await this.$store.getters.imageInfo( offset );
+
 			this.viewer.world.removeAll();
 			this.viewer.addSimpleImage( {
-				url: newVal
+				url: ii.thumburl
 			} );
 		}
 	},

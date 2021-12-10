@@ -49,7 +49,25 @@
 					size=mini
 					:icon="CopyDocument"
 				>
-					Copy
+					Copy pagelist
+				</el-button>
+				<el-button
+					size=mini
+					@click="prevPage"
+				>
+					&lt; Prev
+				</el-button>
+				<el-button
+					size=mini
+					@click="homePage"
+				>
+					Home
+				</el-button>
+				<el-button
+					size=mini
+					@click="nextPage"
+				>
+					Next >
 				</el-button>
 			</el-col>
 		</el-row>
@@ -58,6 +76,7 @@
 <script>
 import { ref, defineComponent } from 'vue';
 import { CopyDocument } from '@element-plus/icons-vue';
+import { ElMessageBox, ElMessage } from 'element-plus';
 
 import { Paginator } from '../paginator.js';
 import { mapState } from 'vuex';
@@ -132,7 +151,12 @@ export default defineComponent( {
 				this.$store.dispatch( 'suggestPageLoads', q.suggestedPositions );
 			}
 
-			this.$store.dispatch( 'setComplete', this.paginator.isComplete() );
+			const complete = this.paginator.isComplete();
+
+			this.$store.dispatch( 'setComplete', complete );
+			if ( complete ) {
+				this.alertComplete();
+			}
 			this.posStr = this.getNewPosStr();
 		},
 		getNewPosStr() {
@@ -149,6 +173,37 @@ export default defineComponent( {
 		},
 		copyPagelistTag() {
 			navigator.clipboard.writeText( this.pageListTag );
+		},
+		nextPage() {
+			this.$store.dispatch( 'setViewOffset',
+				this.$store.state.paginationProcess.viewOffset + 1
+			);
+		},
+		prevPage() {
+			this.$store.dispatch( 'setViewOffset',
+				this.$store.state.paginationProcess.viewOffset - 1
+			);
+		},
+		homePage() {
+			this.$store.dispatch( 'setViewOffset', 0 );
+		},
+		alertComplete() {
+			ElMessageBox.confirm(
+				'The pagelist has been completed. 🎉',
+				'Complete',
+				{
+					confirmButtonText: 'Copy pagelist',
+					cancelButtonText: 'Cancel',
+					type: 'success'
+				}
+			)
+				.then( () => {
+					this.copyPagelistTag();
+					ElMessage( {
+						type: 'success',
+						message: 'Pagelist copied'
+					} );
+				} );
 		}
 	},
 	setup() {

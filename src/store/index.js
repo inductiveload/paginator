@@ -11,6 +11,7 @@ export default createStore( {
 		},
 		paginationProcess: {
 			currentPage: 1,
+			viewOffset: 0,
 			totalPages: 1,
 			currentImageInfo: undefined,
 			complete: false
@@ -19,7 +20,14 @@ export default createStore( {
 			resolution: 1024
 		}
 	},
-	getters: {},
+	getters: {
+		imageInfo: ( state ) => ( page ) => {
+			return imageInfoCache.getImageInfo(
+				state.index.name,
+				page,
+				state.settings.resolution );
+		}
+	},
 	mutations: {
 		CHANGE_IMAGE_INFO( state, { indexName, info } ) {
 
@@ -36,6 +44,9 @@ export default createStore( {
 		},
 		CHANGE_COMPLETE( state, complete ) {
 			state.paginationProcess.complete = complete;
+		},
+		CHANGE_VIEW_OFFSET( state, viewOffset ) {
+			state.paginationProcess.viewOffset = viewOffset;
 		}
 	},
 	actions: {
@@ -68,6 +79,9 @@ export default createStore( {
 		},
 		setComplete( { commit }, complete ) {
 			commit( 'CHANGE_COMPLETE', complete );
+		},
+		setViewOffset( { commit }, viewOffset ) {
+			commit( 'CHANGE_VIEW_OFFSET', viewOffset );
 		},
 		async suggestPageLoads( { state }, suggestedPositions ) {
 			for ( const pos of suggestedPositions ) {
