@@ -69,6 +69,7 @@ export default createStore( {
 		},
 		async changeCurrentPage( { commit, state }, newPage ) {
 			commit( 'CHANGE_CURRENT_PAGE', newPage );
+			commit( 'CHANGE_VIEW_OFFSET', 0 );
 
 			const newImageData = await imageInfoCache.getImageInfo(
 				state.index.name,

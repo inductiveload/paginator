@@ -20,5 +20,19 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## On Toolforge
+
+Build the tool
+
+```
+webservice --backend=kubernetes node10 shell
+cd ~/paginator
+npm run build
+```
+
+Start the webserver
+
+```
+ln -s ~/paginator/dist ~/public_html
+webservice --backend=kubernetes php7.4 start
+```
