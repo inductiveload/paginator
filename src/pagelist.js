@@ -29,26 +29,6 @@ class PageRange {
 		return false;
 	}
 
-	/**
-	 * Integrate a new position/value into the range.
-	 * Should be consistent (so the value doesn't matter, because
-	 * it should already implied by the range)
-	 *
-	 * @param {int} position
-	 */
-	integrate( position ) {
-		const offset = position - this.from;
-
-		if ( position < this.from ) {
-			// move the start and re-root the number
-			this.from = position;
-			this.startValue += offset;
-		} else {
-			// just moving the end point
-			this.to = position;
-		}
-	}
-
 	getAttrStrings() {
 		throw new Error( 'Not implemented' );
 	}
@@ -141,6 +121,26 @@ class NumericRange extends PageRange {
 
 		throw new Error( `Unkwown format: ${this.format}` );
 	}
+
+	/**
+	 * Integrate a new position/value into the range.
+	 * Should be consistent (so the value doesn't matter, because
+	 * it should already implied by the range)
+	 *
+	 * @param {int} position
+	 */
+	integrate( position ) {
+		const offset = position - this.from;
+
+		if ( position < this.from ) {
+			// move the start and re-root the number
+			this.from = position;
+			this.startValue += offset;
+		} else {
+			// just moving the end point
+			this.to = position;
+		}
+	}
 }
 
 class LiteralRange extends PageRange {
@@ -184,6 +184,19 @@ class LiteralRange extends PageRange {
 
 	canBeMergedOver() {
 		return this.value === '–';
+	}
+
+	/**
+	 * Integrate a new position/value into the range.
+	 *
+	 * @param {int} position
+	 */
+	integrate( position ) {
+		if ( position < this.from ) {
+			this.from = position;
+		} else {
+			this.to = position;
+		}
 	}
 }
 
@@ -328,12 +341,15 @@ class Pagelist {
 			const thisRange = this.ranges[ i ];
 			const nextRange = this.ranges[ i + 1 ];
 
-			if ( thisRange.canBeMergedOver() &&
+			// meregable abutting ranges
+			if (
+				thisRange.to + 1 === nextRange.from &&
+				thisRange.canBeMergedOver() &&
 				nextRange.longRangeConsistent() ) {
 				const mergeLength = Math.min( nextRange.startValue - 1, thisRange.length() );
 
 				nextRange.startValue -= mergeLength;
-				nextRange.start -= mergeLength;
+				nextRange.from -= mergeLength;
 				thisRange.to -= mergeLength;
 			}
 		}
