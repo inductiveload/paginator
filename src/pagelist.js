@@ -337,9 +337,9 @@ class Pagelist {
 
 	mergeRanges() {
 		// Merge ranges _left_
-		for ( let i = 0; i < this.ranges.length - 1; ++i ) {
-			const thisRange = this.ranges[ i ];
-			const nextRange = this.ranges[ i + 1 ];
+		for ( let i = this.ranges.length - 1; i > 0; --i ) {
+			const thisRange = this.ranges[ i - 1 ];
+			const nextRange = this.ranges[ i ];
 
 			// meregable abutting ranges
 			if (
@@ -351,6 +351,10 @@ class Pagelist {
 				nextRange.startValue -= mergeLength;
 				nextRange.from -= mergeLength;
 				thisRange.to -= mergeLength;
+
+				if ( thisRange.to <= thisRange.from ) {
+					this.ranges.splice( i - 1, 1 );
+				}
 			}
 		}
 	}
