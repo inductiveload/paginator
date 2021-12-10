@@ -104,10 +104,15 @@ class Paginator {
 
 				// The proposals could be consistent with either end of the range
 				// (or maybe neither)
-				proposals.push(
-					lastRange.formatPosition( queriedPosition ),
-					nextRange.formatPosition( queriedPosition )
-				);
+				const lastVal = lastRange.formatPosition( queriedPosition );
+				const nextVal = nextRange.formatPosition( queriedPosition );
+
+				if ( lastVal ) {
+					proposals.push( lastVal );
+				}
+				if ( nextVal ) {
+					proposals.push( nextVal );
+				}
 			}
 		}
 
@@ -252,6 +257,8 @@ class Paginator {
 		for ( const pr of this.pagelist.ranges ) {
 			console.log( pr );
 		}
+
+		this.pagelist.mergeRanges();
 	}
 }
 

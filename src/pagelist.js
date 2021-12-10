@@ -13,11 +13,19 @@ class PageRange {
 		return false;
 	}
 
+	length() {
+		return this.to - this.from + 1;
+	}
+
 	/**
 	 * Can this range provide a long range consistency check (e.g. a numeric
 	 * range can check offset + value)
 	 */
 	longRangeConsistent() {
+		return false;
+	}
+
+	canBeMergedOver() {
 		return false;
 	}
 
@@ -114,6 +122,11 @@ class NumericRange extends PageRange {
 
 	formatPosition( position ) {
 		const positionOffset = position - this.from;
+
+		if ( positionOffset <= 0 ) {
+			return null;
+		}
+
 		if ( this.format === 'arabic' ) {
 			return this.startValue + ( positionOffset );
 		}
@@ -167,6 +180,10 @@ class LiteralRange extends PageRange {
 
 	formatPosition() {
 		return this.value;
+	}
+
+	canBeMergedOver() {
+		return this.value === '–';
 	}
 }
 
@@ -303,6 +320,23 @@ class Pagelist {
 			return ( distanceToLeft > distanceToRight ) ? lastRange : nextRange;
 		}
 		return null;
+	}
+
+	mergeRanges() {
+		// Merge ranges _left_
+		for ( let i = 0; i < this.ranges.length - 1; ++i ) {
+			const thisRange = this.ranges[ i ];
+			const nextRange = this.ranges[ i + 1 ];
+
+			if ( thisRange.canBeMergedOver() &&
+				nextRange.longRangeConsistent() ) {
+				const mergeLength = Math.min( nextRange.startValue - 1, thisRange.length() );
+
+				nextRange.startValue -= mergeLength;
+				nextRange.start -= mergeLength;
+				thisRange.to -= mergeLength;
+			}
+		}
 	}
 
 	toTag() {
