@@ -39,22 +39,21 @@ describe( 'Simple UncertainInterval', () => {
 describe( 'Paginator', () => {
 
 	/*
-	 * Process a case:
-	 *  * Set up paginator
-	 *  * get the questions, check the pages match what we expect,
-	 *  * then feed suitable responses
-	 *  * Finally, check completion
-	 */
+	* Process a case:
+	*  * Set up paginator
+	*  * get the questions, check the pages match what we expect,
+	*  * then feed suitable responses
+	*  * Finally, check completion
+	*/
 	function itTestCase( testCase ) {
-		describe( testCase.name, () => {
+		describe( testCase.name, function () {
 
 			const paginator = new P.Paginator( testCase.length );
 
-			const itTestQuestion = ( i, qaInfo, question, complete ) => {
+			function itTestQuestion( i, qaInfo, question, complete ) {
 				const desc = qaInfo.position ? ( qaInfo.position + '=' + qaInfo.response ) : 'null';
 
-				it( `Get Question #${i} -> ${desc}`, () => {
-
+				it( `Get Question #${i} -> ${desc}`, function () {
 					if ( qaInfo.position === null ) {
 						assert.equal( question, null );
 					} else {
@@ -63,24 +62,27 @@ describe( 'Paginator', () => {
 						assert.equal( question.position, qaInfo.position );
 					}
 				} );
-			};
-
-			for ( let i = 0; i < testCase.qAndAns.length; ++i ) {
-				const qaInfo = testCase.qAndAns[ i ];
-
-				// Get the next question
-				const question = paginator.nextQuestion();
-				const complete = paginator.isComplete();
-
-				// console.log(paginator.pagelist);
-				// Test that it is what we expect
-				itTestQuestion( i, qaInfo, question, complete );
-
-				if ( question !== null ) {
-					// Feed the canned response back
-					paginator.addAnswer( question.position, qaInfo.response );
-				}
 			}
+
+			describe( 'Question/answers', function () {
+
+				for ( let i = 0; i < testCase.qAndAns.length; ++i ) {
+					const qaInfo = testCase.qAndAns[ i ];
+
+					// Get the next question
+					const question = paginator.nextQuestion();
+					const complete = paginator.isComplete();
+
+					// console.log(paginator.pagelist);
+					// Test that it is what we expect
+					itTestQuestion( i, qaInfo, question, complete );
+
+					if ( question !== null ) {
+						// Feed the canned response back
+						paginator.addAnswer( question.position, qaInfo.response );
+					}
+				}
+			} );
 
 			it( 'Completeness', () => {
 				// the should be no uncertainty left
@@ -208,7 +210,7 @@ describe( 'Paginator', () => {
 	itTestCase( testCaseRomArabic );
 
 	/* Handle a discontinuous page range
-	 *
+	 *            V
 	 * 1  2  3  4  5  6  7  8  9 10
 	 * 1  2  3  4  7  8  9 10 11 12
 	 */
@@ -246,7 +248,7 @@ describe( 'Paginator', () => {
 	itTestCase( testCaseDiscontinuousMissing );
 
 	/* Handle a discontinuous page range
-	 *
+	 *             V  V
 	 * 1  2  3  4  5  6  7  8  9 10
 	 * 1  2  3  4  3  4  5  6  7  8
 	 */
@@ -324,4 +326,56 @@ describe( 'Paginator', () => {
 	};
 
 	itTestCase( testCaseDiscontinuousPlates );
+
+	/* Handle nested range inserts
+	 * Rare in real books, but can cause a nasty logical trip
+	 *             V  V
+	 * 1  2  3  4  5  6  7  8  9 10
+	 * 1  2  3  4  1  -  3  4  7  8
+	 */
+	const testCaseDiscontinuousNested = {
+		name: 'Dicontinuity (nested range)',
+		length: 10,
+		tag: '<pagelist 1=1 5=1 6="–" 7=3 9=7 />',
+		qAndAns: [
+			{
+				position: 1,
+				response: '1'
+			},
+			{
+				position: 10,
+				response: '8'
+			},
+			{
+				position: 6,
+				response: '-'
+			},
+			{
+				position: 5,
+				response: '1'
+			},
+			{
+				position: 3,
+				response: '3'
+			},
+			{
+				position: 4,
+				response: '4'
+			},
+			{
+				position: 7,
+				response: '3'
+			},
+			{
+				position: 9,
+				response: '7'
+			},
+			{
+				position: 8,
+				response: '4'
+			}
+		]
+	};
+
+	itTestCase( testCaseDiscontinuousNested );
 } );

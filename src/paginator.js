@@ -229,13 +229,14 @@ class Paginator {
 			// we have some page ranges in the list already - see if the answer fits with
 			// any of them
 			console.log( `Finding consistency for @${position} = ${value}` );
-			const consistentRange = this.pagelist.findFirstConsistentRangeFor( position, value );
+			// const consistentRange = this.pagelist.findFirstConsistentRangeFor( position, value );
+
+			const consistentRange = this.pagelist.findConsistentRangeFor( position, value );
 
 			if ( consistentRange ) {
 				// Integrate the answer into the range
+				console.log( `2 Consistent range: @${consistentRange.from} = ${consistentRange.to}` );
 				consistentRange.integrate( position, value );
-
-				console.log( `2 Consistent: updated range @${position} = ${value}` );
 				this.handleNewPageRange( consistentRange );
 			} else {
 				// Start a new range at this point
@@ -246,7 +247,11 @@ class Paginator {
 				this.handleNewPageRange( newRange );
 			}
 		}
+
 		this.printUncertainties();
+		for ( const pr of this.pagelist.ranges ) {
+			console.log( pr );
+		}
 	}
 }
 

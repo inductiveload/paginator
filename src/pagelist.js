@@ -274,6 +274,37 @@ class Pagelist {
 		return null;
 	}
 
+	findConsistentRangeFor( position, value ) {
+
+		let lastRange = this.getLastRangeBefore( position );
+		let nextRange = this.getNextRangeAfter( position );
+
+		if ( lastRange ) {
+			lastRange = lastRange.isConsistent( position, value ) ? lastRange : null;
+		}
+		if ( nextRange ) {
+			nextRange = nextRange.isConsistent( position, value ) ? nextRange : null;
+		}
+
+		if ( lastRange && !nextRange ) {
+			return lastRange;
+		}
+		if ( nextRange && !lastRange ) {
+			return nextRange;
+		}
+
+		if ( nextRange && lastRange ) {
+			// they're both consistent, which is is weird sicne how did we get inside
+			// an existing consistent range
+			// anyway,just choose the furthest one, as that will close down more uncertainty
+			const distanceToRight = nextRange.from - position;
+			const distanceToLeft = position - lastRange.to;
+
+			return ( distanceToLeft > distanceToRight ) ? lastRange : nextRange;
+		}
+		return null;
+	}
+
 	toTag() {
 		let s = '<pagelist\n';
 
