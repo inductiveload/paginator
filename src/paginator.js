@@ -1,4 +1,5 @@
 const Pagelist = require( './pagelist.js' );
+const roman = require( './roman.js' );
 
 /**
  * Represents an interval of uncertainty
@@ -164,11 +165,11 @@ class Paginator {
 		}
 
 		// These proposals are usually plausible
-		proposals.push( '–', 'Img', 'Adv', 'ToC', 'Title', 'Cover' );
+		proposals.push( '–', '?', 'Img', 'Adv', 'ToC', 'Title', 'Cover' );
 
 		// Filter out dupes
 		proposals = [ ...new Set( proposals ) ];
-		proposals.sort();
+		proposals.sort( this.pageNumberSorter.bind( this ) );
 
 		if ( queriedPosition > 1 ) {
 			suggestedPositions.push( queriedPosition - 1 );
@@ -184,6 +185,38 @@ class Paginator {
 			proposals,
 			suggestedPositions
 		};
+	}
+
+	pageNumberTypeCode( a ) {
+		if ( [ '–', '?' ].indexOf( a ) !== -1 ) {
+			return 0;
+		}
+		if ( /^[0-9]+$/.test( a ) ) {
+			return 1;
+		}
+		if ( /^[ivxlcdm]+$/.test( a ) ) {
+			return 2;
+		}
+		if ( /^[IVXLCDM]+$/.test( a ) ) {
+			return 3;
+		}
+		return 4;
+	}
+
+	pageNumberSorter( a, b ) {
+
+		const aCode = this.pageNumberTypeCode( a );
+		const bCode = this.pageNumberTypeCode( b );
+
+		if ( aCode !== bCode ) {
+			return aCode - bCode;
+		}
+
+		if ( aCode === 2 || aCode === 3 ) {
+			return roman.romanToInt( a ) - roman.romanToInt( b );
+		}
+
+		return ( String( a ) ).localeCompare( b );
 	}
 
 	/**

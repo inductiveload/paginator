@@ -1,21 +1,48 @@
 <template>
 	<div>
 		<el-form
+			class="setup-form"
 			@submit.prevent
 			label-width="120px"
 		>
+			<el-form-item
+				label="Wikisource"
+			>
+				<el-select
+					v-model="theWikisource"
+					@change="updateWikisource"
+					:fetch-suggestions="getWikisources"
+					placeholder="Enter Wikisource subdomain"
+				>
+					<el-option
+						v-for="item in wikisources"
+						:key="item.value"
+						:label="item.value"
+						:value="item.value"
+					>
+					</el-option>
+				</el-select>
+			</el-form-item>
 			<el-form-item
 				label="Index"
 			>
 				<el-autocomplete
 					class="index-input"
 					v-model="theIndexName"
-					clearable
 					@change="updateIndexName"
 					@select="updateIndexName"
+					clearable
 					:fetch-suggestions="querySearch"
 					placeholder="Please enter an index"
-				/>
+				>
+					<template #append>
+						<el-button
+							:icon="TopRight"
+							@click="openIndex"
+						>
+						</el-button>
+					</template>
+				</el-autocomplete>
 			</el-form-item>
 		</el-form>
 	</div>
@@ -23,42 +50,80 @@
 <script>
 import { ref, defineComponent } from 'vue';
 import { mapState } from 'vuex';
-import { getIndexesWithPrefix } from '../mw_utils.js';
+import { TopRight } from '@element-plus/icons-vue';
+import { getIndexesWithPrefix, getIndexName } from '../mw_utils.js';
 
 export default defineComponent( {
 	name: 'PageViewer',
 	computed: {
 		...mapState( {
-			indexName: state => state.index.name
+			indexName: state => state.index.name,
+			wikisource: state => state.wikisource
 		} )
 	},
 	watch: {
 		indexName( val ) {
 			this.theIndexName = val;
+		},
+		wikisource( val ) {
+			this.theWikisource = val;
 		}
 	},
 	methods: {
 		updateIndexName( event ) {
 			this.$store.dispatch( 'changeIndex', event.value );
+		},
+		updateWikisource( value ) {
+			this.$store.dispatch( 'setWikisource', value );
+		},
+		querySearch( query, cb ) {
+			const domain = this.$store.state.wikisource;
+			getIndexesWithPrefix( domain, query )
+				.then( ( apiVals ) => {
+					const values = apiVals.map( ( v ) => {
+						return {
+							value: v.title.replace( /^[^ :]+:/, '' )
+						};
+					} );
+
+					cb( values );
+				} );
+		},
+		openIndex() {
+
+			const indexName = this.$store.state.index.name;
+
+			if ( !indexName ) {
+				return;
+			}
+
+			const url = getIndexName(
+				this.$store.state.wikisource,
+				indexName );
+
+			window.open( url );
 		}
 	},
 	setup() {
-		async function querySearch( query, cb ) {
 
-			const apiVals = await getIndexesWithPrefix( query );
+		const wikisourceDomains = [
+			'en', 'mul', 'ar', 'as', 'be', 'bn', 'br', 'ca', 'cy', 'da',
+			'de', 'el', 'eo', 'es', 'et', 'fa', 'fr', 'gu', 'he', 'hr',
+			'hu', 'hy', 'id', 'it', 'kn', 'la', 'ml', 'mr', 'nl', 'no',
+			'pl', 'pms', 'pt', 'ro', 'ru', 'sa', 'sl', 'sv', 'te', 'vec', 'vi', 'zh'
+		];
 
-			const values = apiVals.map( ( v ) => {
-				return {
-					value: v.title.replace( /^[^:]+:/, '' )
-				};
-			} );
-
-			cb( values );
-		}
+		const wikisources = ref( wikisourceDomains.map( ( ws ) => {
+			return {
+				value: ws
+			};
+		} ) );
 
 		return {
 			theIndexName: ref( '' ),
-			querySearch
+			theWikisource: ref( '' ),
+			wikisources,
+			TopRight
 		};
 	},
 	mounted() {
@@ -66,6 +131,10 @@ export default defineComponent( {
 } );
 </script>
 <style>
+.setup-form {
+	text-align: left;
+}
+
 .index-input {
 	width: 100%;
 }

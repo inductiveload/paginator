@@ -18,11 +18,13 @@ export default createStore( {
 		},
 		settings: {
 			resolution: 1024
-		}
+		},
+		wikisource: ''
 	},
 	getters: {
 		imageInfo: ( state ) => ( page ) => {
 			return imageInfoCache.getImageInfo(
+				state.wikisource,
 				state.index.name,
 				page,
 				state.settings.resolution );
@@ -47,6 +49,9 @@ export default createStore( {
 		},
 		CHANGE_VIEW_OFFSET( state, viewOffset ) {
 			state.paginationProcess.viewOffset = viewOffset;
+		},
+		CHANGE_WIKISOURCE( state, newWS ) {
+			state.wikisource = newWS;
 		}
 	},
 	actions: {
@@ -58,6 +63,7 @@ export default createStore( {
 			}
 
 			const newImageData = await imageInfoCache.getImageInfo(
+				state.wikisource,
 				indexName,
 				state.paginationProcess.currentPage,
 				state.settings.resolution );
@@ -72,6 +78,7 @@ export default createStore( {
 			commit( 'CHANGE_VIEW_OFFSET', 0 );
 
 			const newImageData = await imageInfoCache.getImageInfo(
+				state.wikisource,
 				state.index.name,
 				newPage,
 				state.settings.resolution );
@@ -84,9 +91,13 @@ export default createStore( {
 		setViewOffset( { commit }, viewOffset ) {
 			commit( 'CHANGE_VIEW_OFFSET', viewOffset );
 		},
+		setWikisource( { commit }, value ) {
+			commit( 'CHANGE_WIKISOURCE', value );
+		},
 		async suggestPageLoads( { state }, suggestedPositions ) {
 			for ( const pos of suggestedPositions ) {
 				imageInfoCache.getImageInfo(
+					state.wikisource,
 					state.index.name,
 					pos,
 					{

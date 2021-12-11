@@ -2,7 +2,7 @@
 	<div
 		class="outer"
 	>
-		<HelloWorld msg="Welcome to The Page Game"/>
+		<HelloWorld msg="The Wikisource Page Game"/>
 		<SetupForm
 			@indexChanged="indexChanged($event)"
 		/>
@@ -38,6 +38,9 @@ export default {
 			index = index.replace( /^[\s]+:/, '' );
 			this.$store.dispatch( 'changeIndex', index );
 		}
+
+		let ws = this.$route.query.wikisource || 'en';
+		this.$store.dispatch( 'setWikisource', ws );
 	}
 };
 </script>
@@ -47,7 +50,6 @@ export default {
 	font-family: Avenir, Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
 	color: #2c3e50;
 	height: 100vh;
 }

@@ -183,7 +183,7 @@ class LiteralRange extends PageRange {
 	}
 
 	canBeMergedOver() {
-		return this.value === '–';
+		return this.value === '?';
 	}
 
 	/**

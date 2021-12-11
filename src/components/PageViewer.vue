@@ -41,6 +41,11 @@ export default {
 
 			const ii = await this.$store.getters.imageInfo( offset );
 
+			if ( !ii ) {
+				// maybe this is a completely busted index?
+				return;
+			}
+
 			this.viewer.world.removeAll();
 			this.viewer.addSimpleImage( {
 				url: ii.thumburl
@@ -53,7 +58,9 @@ export default {
 			showFullPageControl: false,
 			preserveViewport: true,
 			animationTime: 0.5,
-			prefixUrl: '//openseadragon.github.io/openseadragon/images/',
+			// prefixUrl: '//openseadragon.github.io/openseadragon/images/',
+			showZoomControl: false,
+			showHomeControl: false,
 			gestureSettingsMouse: {
 				clickToZoom: false
 			}
