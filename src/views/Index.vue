@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="outer"
+		:class="{ outer: true, narrow: narrow }"
 	>
 		<HelloWorld msg="The Wikisource Page Game"/>
 		<SetupForm
@@ -19,6 +19,8 @@ import PageViewer from '@/components/PageViewer.vue';
 import SetupForm from '@/components/SetupForm.vue';
 import Paginator from '@/components/Paginator.vue';
 
+import { mapGetters } from 'vuex';
+
 export default {
 	name: 'PaginatorApp',
 	components: {
@@ -31,6 +33,16 @@ export default {
 		return {
 		};
 	},
+	computed: {
+		...mapGetters( {
+			narrow: 'isNarrow'
+		} )
+	},
+	watch: {
+		narrow: {
+			immediate: true
+		}
+	},
 	mounted() {
 		let index = this.$route.query.index;
 
@@ -42,6 +54,21 @@ export default {
 			index = index.replace( /^[\s]+:/, '' );
 			this.$store.dispatch( 'changeIndex', index );
 		}
+
+		this.handleResize();
+	},
+	methods: {
+		handleResize() {
+			this.$store.dispatch( 'setWindowParams', {
+				width: window.innerWidth
+			} );
+		}
+	},
+	created: function () {
+		window.addEventListener( 'resize', this.handleResize );
+	},
+	unmounted() {
+		window.removeEventListener( 'resize', this.handleResize );
 	}
 };
 </script>
@@ -52,19 +79,17 @@ export default {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	color: #2c3e50;
-	height: 100vh;
 }
 
 .outer {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	min-height: 100vh;
 }
 
 html {
   /* body will set it's height based on its parent, which is html */
-  height: 100%;
-
+	height: 100%;
   /* set full width as well */
   width: 100%;
 }

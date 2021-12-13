@@ -1,10 +1,15 @@
 <template>
 	<div>
-		<el-row :gutter="10">
-			<el-col :xs="16" :sm="12" :md="14" :lg="14" :xl="14">
+		<el-row
+			class="paginator-container"
+			:gutter="10">
+			<el-col
+				class="form-container"
+				:xs="16" :sm="12" :md="14" :lg="14" :xl="14">
 				<el-form
 					@submit.prevent
 					label-width="120px"
+					:label-position="labelPosition"
 				>
 					<el-form-item
 						label="Position"
@@ -21,21 +26,12 @@
 							clearable
 							:disabled="!isIndexValid"
 						/>
-						<el-radio-group
-							@change="onPagenumberInput"
-							:disabled="!isIndexValid"
-						>
-							<el-radio-button
-								v-for="option in quickOptions"
-								:key="option.value"
-								:label="option.value"
-							>
-							</el-radio-button>
-						</el-radio-group>
 					</el-form-item>
 				</el-form>
 			</el-col>
-			<el-col :xs="8" :sm="12" :md="10" :lg="10" :xl="10">
+			<el-col
+				class="pagelist-area-container"
+				:xs="8" :sm="12" :md="10" :lg="10" :xl="10">
 				<el-input
 					v-model="pageListTag"
 					readonly
@@ -51,25 +47,16 @@
 				>
 					Copy pagelist
 				</el-button>
-				<el-button
-					size=mini
-					@click="prevPage"
-				>
-					&lt; Prev
-				</el-button>
-				<el-button
-					size=mini
-					@click="homePage"
-				>
-					Home
-				</el-button>
-				<el-button
-					size=mini
-					@click="nextPage"
-				>
-					Next >
-				</el-button>
 			</el-col>
+		</el-row>
+		<el-row class="suggested-numbers">
+			<el-button
+				v-for="option in quickOptions"
+				:key="option.value"
+				@click="onPagenumberInput( option.value )"
+			>
+				{{ option.value }}
+			</el-button>
 		</el-row>
 	</div>
 </template>
@@ -79,7 +66,7 @@ import { CopyDocument } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 
 import { Paginator } from '../paginator.js';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 export default defineComponent( {
 	name: 'PageViewer',
@@ -88,6 +75,9 @@ export default defineComponent( {
 			indexName: ( state ) => state.index.name,
 			isComplete: ( state ) => state.paginationProcess.complete,
 			currentPage: ( state ) => state.paginationProcess.currentPage
+		} ),
+		...mapGetters( {
+			narrow: 'isNarrow'
 		} ),
 		isIndexValid() {
 			const state = this.$store.state;
@@ -109,11 +99,18 @@ export default defineComponent( {
 			);
 			this.askQuestion();
 		},
-		isComplete: function () {
+		isComplete() {
 			this.posStr = this.getNewPosStr();
 		},
-		currentPage: function () {
+		currentPage() {
 			this.posStr = this.getNewPosStr();
+		},
+		narrow: {
+			handler( val ) {
+				// this.labelPosition = val ? 'top' : 'right';
+				this.labelPosition = 'right';
+			},
+			immediate: true
 		}
 	},
 	methods: {
@@ -174,19 +171,6 @@ export default defineComponent( {
 		copyPagelistTag() {
 			navigator.clipboard.writeText( this.pageListTag );
 		},
-		nextPage() {
-			this.$store.dispatch( 'setViewOffset',
-				this.$store.state.paginationProcess.viewOffset + 1
-			);
-		},
-		prevPage() {
-			this.$store.dispatch( 'setViewOffset',
-				this.$store.state.paginationProcess.viewOffset - 1
-			);
-		},
-		homePage() {
-			this.$store.dispatch( 'setViewOffset', 0 );
-		},
 		alertComplete() {
 			ElMessageBox.confirm(
 				'The pagelist has been completed. 🎉',
@@ -215,6 +199,7 @@ export default defineComponent( {
 
 		return {
 			CopyDocument,
+			labelPosition: ref( 'right' ),
 			paginator: null,
 			posStr,
 			quickOptions,
@@ -227,8 +212,20 @@ export default defineComponent( {
 </script>
 <style>
 
+.paginator-container {
+	align-items: end;
+}
+
+.pagelist-area-container {
+	margin-bottom: 5px;
+}
+
 .isComplete textarea {
 	border-color: green;
+}
+
+.suggested-numbers {
+	justify-content: center;
 }
 
 </style>

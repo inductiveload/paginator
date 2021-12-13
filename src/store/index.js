@@ -14,10 +14,15 @@ export default createStore( {
 			viewOffset: 0,
 			totalPages: 1,
 			currentImageInfo: undefined,
-			complete: false
+			complete: false,
+			numQuestions: 0,
+			startTime: null
 		},
 		settings: {
 			resolution: 1024
+		},
+		window: {
+			width: 0
 		},
 		wikisource: ''
 	},
@@ -28,6 +33,9 @@ export default createStore( {
 				state.index.name,
 				page,
 				state.settings.resolution );
+		},
+		isNarrow: ( state ) => {
+			return state.window.width < 500;
 		}
 	},
 	mutations: {
@@ -35,6 +43,10 @@ export default createStore( {
 
 			if ( indexName ) {
 				state.index.name = indexName;
+
+				// reset game state
+				state.paginationProcess.numQuestions = 0;
+				state.paginationProcess.startTime = Date.now();
 			}
 			if ( info ) {
 				state.paginationProcess.currentImageInfo = info;
@@ -52,6 +64,14 @@ export default createStore( {
 		},
 		CHANGE_WIKISOURCE( state, newWS ) {
 			state.wikisource = newWS;
+		},
+		INC_QUESTIONS( state ) {
+			state.paginationProcess.numQuestions++;
+		},
+		SET_WINDOW( state, params ) {
+			if ( params.width ) {
+				state.window.width = params.width;
+			}
 		}
 	},
 	actions: {
@@ -93,6 +113,12 @@ export default createStore( {
 		},
 		setWikisource( { commit }, value ) {
 			commit( 'CHANGE_WIKISOURCE', value );
+		},
+		incQuestions( { commit } ) {
+			commit( 'INC_QUESTIONS' );
+		},
+		setWindowParams( { commit }, params ) {
+			commit( 'SET_WINDOW', params );
 		},
 		async suggestPageLoads( { state }, suggestedPositions ) {
 			for ( const pos of suggestedPositions ) {

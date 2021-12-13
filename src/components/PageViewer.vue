@@ -1,8 +1,40 @@
 <template>
-	<div
-		class="page-viewer"
-		id="page-viewer"
-	></div>
+	<div class="page-view-container">
+		<div class="page-view-controls">
+			<el-button
+				id="zoom-in-btn"
+				size=mini>
+				Zoom in
+			</el-button>
+			<el-button
+				id="zoom-out-btn"
+				size=mini>
+				Zoom out
+			</el-button>
+				<el-button
+					size=mini
+					@click="prevPage"
+				>
+					&lt; Prev
+				</el-button>
+				<el-button
+					size=mini
+					@click="homePage"
+				>
+					Home
+				</el-button>
+				<el-button
+					size=mini
+					@click="nextPage"
+				>
+					Next >
+				</el-button>
+		</div>
+		<div
+			class="page-viewer"
+			id="page-viewer"
+		></div>
+	</div>
 </template>
 
 <script>
@@ -50,6 +82,19 @@ export default {
 			this.viewer.addSimpleImage( {
 				url: ii.thumburl
 			} );
+		},
+		nextPage() {
+			this.$store.dispatch( 'setViewOffset',
+				this.$store.state.paginationProcess.viewOffset + 1
+			);
+		},
+		prevPage() {
+			this.$store.dispatch( 'setViewOffset',
+				this.$store.state.paginationProcess.viewOffset - 1
+			);
+		},
+		homePage() {
+			this.$store.dispatch( 'setViewOffset', 0 );
 		}
 	},
 	mounted() {
@@ -59,8 +104,10 @@ export default {
 			preserveViewport: true,
 			animationTime: 0.5,
 			// prefixUrl: '//openseadragon.github.io/openseadragon/images/',
-			showZoomControl: false,
+			// showZoomControl: false,
 			showHomeControl: false,
+			zoomInButton: 'zoom-in-btn',
+			zoomOutButton: 'zoom-out-btn',
 			gestureSettingsMouse: {
 				clickToZoom: false
 			}
@@ -113,13 +160,59 @@ export default {
 
 <style>
 
-.page-viewer {
-	margin-top: 5px;
-	border-top: 1px solid grey;
+.page-view-container {
+	display: flex;
 	flex-grow: 1;
+	flex-direction: column;
+	border-top: 1px solid grey;
+	padding-top: 5px;
+	/* min-height: 500px; */
 }
 
-.openseadragon-canvas {
-    background-color: #e8f2f8 !important;
+.narrow .page-view-container {
+	flex-direction: row;
+  align-items: stretch;
+}
+
+.page-view-controls {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	margin-bottom: 5px;
+}
+
+.narrow .page-view-controls {
+	flex-direction: column;
+	justify-content: start;
+}
+
+.page-view-controls button {
+	margin-left: 5px;
+}
+
+.narrow .page-view-controls button {
+	margin-left: 0;
+	margin-top: 5px;
+}
+
+.narrow .page-view-container {
+	flex-direction: row;
+}
+
+.page-viewer {
+	width:100%;
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+	min-height: 400px;
+}
+
+.narrow .page-viewer {
+	margin-left: 5px;
+}
+
+.openseadragon-container {
+	background-color: #e8f2f8 !important;
+	flex-grow: 1;
 }
 </style>

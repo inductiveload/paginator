@@ -4,9 +4,12 @@
 			class="setup-form"
 			@submit.prevent
 			label-width="120px"
+			label-position="right"
+			inline=true
 		>
 			<el-form-item
 				label="Wikisource"
+				label-position="top"
 			>
 				<el-select
 					v-model="theWikisource"
@@ -39,6 +42,7 @@
 						<el-button
 							:icon="TopRight"
 							@click="openIndex"
+							title="Visit on Wikisource"
 						>
 						</el-button>
 					</template>
@@ -49,7 +53,7 @@
 </template>
 <script>
 import { ref, defineComponent } from 'vue';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { TopRight } from '@element-plus/icons-vue';
 import { getIndexesWithPrefix, getIndexName } from '../mw_utils.js';
 
@@ -59,6 +63,9 @@ export default defineComponent( {
 		...mapState( {
 			indexName: state => state.index.name,
 			wikisource: state => state.wikisource
+		} ),
+		...mapGetters( {
+			narrow: 'isNarrow'
 		} )
 	},
 	watch: {
@@ -67,6 +74,12 @@ export default defineComponent( {
 		},
 		wikisource( val ) {
 			this.theWikisource = val;
+		},
+		narrow: {
+			handler( val ) {
+				this.labelPosition = val ? 'top' : 'right';
+			},
+			immediate: true
 		}
 	},
 	methods: {
@@ -122,14 +135,14 @@ export default defineComponent( {
 		return {
 			theIndexName: ref( '' ),
 			theWikisource: ref( '' ),
+			labelPosition: ref( 'right' ),
 			wikisources,
 			TopRight
 		};
-	},
-	mounted() {
 	}
 } );
 </script>
+
 <style>
 .setup-form {
 	text-align: left;
@@ -137,5 +150,9 @@ export default defineComponent( {
 
 .index-input {
 	width: 100%;
+}
+
+.el-form-item {
+	margin-bottom: 8px;
 }
 </style>
