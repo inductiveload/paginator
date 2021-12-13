@@ -69,8 +69,37 @@ export default {
 		this.viewer = OpenSeadragon( osdParams );
 
 		this.viewer.world.addHandler( 'add-item', () => {
-			console.log( 'Open' );
-			this.viewer.viewport.goHome();
+			const data = window.localStorage.getItem( 'main-viewer-position' );
+			let params;
+			if ( data ) {
+				try {
+					params = JSON.parse( data );
+				} catch ( e ) {
+				}
+			}
+
+			if ( params !== undefined ) {
+				this.viewer.viewport.setRotation( params.rotation );
+				this.viewer.viewport.setRotation( params.zoom );
+				this.viewer.viewport.panTo(
+					new OpenSeadragon.Point( params.x, params.y ) );
+			} else {
+				this.viewer.viewport.goHome();
+			}
+		} );
+
+		this.viewer.addHandler( 'viewport-change', () => {
+
+			var center = this.viewer.viewport.getCenter();
+
+			const params = {
+				rotation: this.viewer.viewport.getRotation(),
+				zoom: this.viewer.viewport.getZoom(),
+				x: center.x,
+				y: center.y
+			};
+
+			window.localStorage.setItem( 'main-viewer-position', JSON.stringify( params ) );
 		} );
 
 		if ( this.filePageUrl ) {

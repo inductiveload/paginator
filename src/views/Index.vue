@@ -34,13 +34,14 @@ export default {
 	mounted() {
 		let index = this.$route.query.index;
 
+		let ws = this.$route.query.wikisource || 'en';
+		ws = ws.replace( /\.?wikisource(\.org)?$/, '' );
+		this.$store.dispatch( 'setWikisource', ws );
+
 		if ( index ) {
 			index = index.replace( /^[\s]+:/, '' );
 			this.$store.dispatch( 'changeIndex', index );
 		}
-
-		let ws = this.$route.query.wikisource || 'en';
-		this.$store.dispatch( 'setWikisource', ws );
 	}
 };
 </script>
