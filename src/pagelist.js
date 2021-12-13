@@ -101,25 +101,25 @@ class NumericRange extends PageRange {
 	}
 
 	formatPosition( position ) {
-		const positionOffset = position - this.from;
+		const positionWithOffset = this.startValue + ( position - this.from );
 
-		if ( positionOffset <= 0 ) {
+		if ( positionWithOffset <= 0 ) {
 			return null;
 		}
 
 		if ( this.format === 'arabic' ) {
-			return this.startValue + ( positionOffset );
+			return positionWithOffset;
 		}
 
 		if ( this.format === 'roman' ) {
-			return Roman.intToRoman( positionOffset ).toLowerCase();
+			return Roman.intToRoman( positionWithOffset ).toLowerCase();
 		}
 
 		if ( this.format === 'highroman' ) {
-			return Roman.intToRoman( positionOffset ).toUpperCase();
+			return Roman.intToRoman( positionWithOffset ).toUpperCase();
 		}
 
-		throw new Error( `Unkwown format: ${this.format}` );
+		throw new Error( `Unkwown format: ${this.format} (to format ${positionWithOffset})` );
 	}
 
 	/**

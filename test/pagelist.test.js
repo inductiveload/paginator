@@ -82,3 +82,34 @@ describe( 'Page range consistency', () => {
 		assert.equal( pr.isConsistent( 3, '-' ), false );
 	} );
 } );
+
+describe( 'Pagelist format', () => {
+
+	it( 'arabic', function () {
+		const pr = new PL.NumericRange( 100, 200, 10, 'arabic' );
+
+		// < 1
+		assert.equal( pr.formatPosition( 50 ), null );
+
+		// these are all possible
+		assert.equal( pr.formatPosition( 95 ), 5 );
+		assert.equal( pr.formatPosition( 100 ), 10 );
+		assert.equal( pr.formatPosition( 110 ), 20 );
+		assert.equal( pr.formatPosition( 200 ), 110 );
+		assert.equal( pr.formatPosition( 210 ), 120 );
+	} );
+
+	it( 'roman', function () {
+		const pr = new PL.NumericRange( 100, 200, 10, 'roman' );
+
+		// < 1
+		assert.equal( pr.formatPosition( 50 ), null );
+
+		// these are all possible
+		assert.equal( pr.formatPosition( 95 ), 'v' );
+		assert.equal( pr.formatPosition( 100 ), 'x' );
+		assert.equal( pr.formatPosition( 110 ), 'xx' );
+		assert.equal( pr.formatPosition( 200 ), 'cx' );
+		assert.equal( pr.formatPosition( 210 ), 'cxx' );
+	} );
+} );
