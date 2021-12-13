@@ -47,15 +47,18 @@ class NumericRange extends PageRange {
 			return value;
 		}
 
-		if ( this.format === 'arabic' ) {
+		if ( this.format === 'arabic' && /^[0-9]+$/.test( value ) ) {
 			return parseInt( value );
 		}
 
 		if ( this.format === 'roman' || this.format === 'highroman' ) {
-			return Roman.romanToInt( value );
+			const romanValue = Roman.romanToInt( value );
+			if ( romanValue ) {
+				return romanValue;
+			}
 		}
 
-		throw new Error( `Unkwown format: ${this.format}` );
+		return null;
 	}
 
 	/**
@@ -65,6 +68,11 @@ class NumericRange extends PageRange {
 	 */
 	isConsistent( position, value ) {
 		const numericValue = this.getNumericValue( value );
+
+		// not a number we can handle
+		if ( numericValue === null ) {
+			return false;
+		}
 
 		const offset = position - this.from;
 		const newValue = this.startValue + offset;
