@@ -136,18 +136,6 @@ class Paginator {
 					// just bisect the gap to close in on the discontinuities
 					queriedPosition = Math.round( ( lastRange.to + nextRange.from ) / 2 );
 				}
-
-				// The proposals could be consistent with either end of the range
-				// (or maybe neither)
-				const lastVal = lastRange.formatPosition( queriedPosition );
-				const nextVal = nextRange.formatPosition( queriedPosition );
-
-				if ( lastVal ) {
-					proposals.push( lastVal );
-				}
-				if ( nextVal ) {
-					proposals.push( nextVal );
-				}
 			}
 		}
 
@@ -164,29 +152,18 @@ class Paginator {
 					minPos = lastRange.to + 1;
 				}
 				queriedPosition = Math.max( minPos, cand );
-
-				proposals.push(
-					nextRange.formatPosition( queriedPosition )
-				);
 			}
 		}
 
-		if ( queriedPosition === undefined ) {
+		if ( queriedPosition === undefined && lastRange !== null ) {
+			// there's a range before us, so see if we can join it up
 
-			if ( lastRange !== null ) {
-				// there's a range before us, so see if we can join it up
-
-				// If the range is long-range consistent, go as far as we can
-				if ( lastRange.longRangeConsistent() ) {
-					queriedPosition = uc.to;
-				} else {
-					// otherwise, just nibble at it the front
-					queriedPosition = uc.from;
-				}
-
-				proposals.push(
-					lastRange.formatPosition( queriedPosition )
-				);
+			// If the range is long-range consistent, go as far as we can
+			if ( lastRange.longRangeConsistent() ) {
+				queriedPosition = uc.to;
+			} else {
+				// otherwise, just nibble at it the front
+				queriedPosition = uc.from;
 			}
 		}
 
@@ -195,7 +172,19 @@ class Paginator {
 			// we can only really ask about the first uncertain page
 			queriedPosition = uc.from;
 
-			// We have no idea about plausible numbering, so nthing to do here
+			// We have no idea about plausible numbering, so nothing to do here
+		}
+
+		// The proposals could be consistent with either end of the range
+		// (or maybe neither)
+		const lastVal = lastRange && lastRange.formatPosition( queriedPosition );
+		const nextVal = nextRange && nextRange.formatPosition( queriedPosition );
+
+		if ( lastVal ) {
+			proposals.push( lastVal );
+		}
+		if ( nextVal ) {
+			proposals.push( nextVal );
 		}
 
 		// These proposals are usually plausible
