@@ -91,7 +91,7 @@ describe( 'Paginator', () => {
 
 			if ( testCase.tag ) {
 
-				const normaliseTag = function( t ) {
+				const normaliseTag = function ( t ) {
 					return t.replace( /\s+/g, ' ' );
 				};
 
@@ -327,8 +327,83 @@ describe( 'Paginator', () => {
 
 	itTestCase( testCaseDiscontinuousPlates );
 
+	/* Handle dual ranges
+	 * This allows slightly faster finding of "secondary ranges" that would
+	 * otherwise cause a binary search from a distant point
+	 *
+	 * 1  2  3  4  5  6  7  8  9 10
+	 * 1  2  3  4  5  6  7  8  1  2
+	 */
+	const testCaseDiscontinuousRestarted = {
+		name: 'Disconstinuity (restarted range)',
+		length: 10,
+		tag: '<pagelist 1=1 9=1 />',
+		qAndAns: [
+			{
+				position: 1,
+				response: '1'
+			},
+			// Report a range that "looks restarted"
+			{
+				position: 10,
+				response: '2'
+			},
+			// Locate the start of the range
+			{
+				position: 9,
+				response: '1'
+			},
+			// Now the second range is complete
+			{
+				position: 8,
+				response: '8'
+			}
+		]
+	};
+
+	itTestCase( testCaseDiscontinuousRestarted );
+
+	/* Handle dual ranges with an "early" restart signalled by a change in format
+	 * This allows slightly faster finding of "secondary ranges" that would
+	 * otherwise cause a binary search from a distant point
+	 *
+	 * 1  2  3  4  5  6  7  8  9 10
+	 * i ii  1  2  3  4  5  6  7  8
+	 */
+	const testCaseDiscontinuousRestartedFormat = {
+		name: 'Disconstinuity (restarted range, new format)',
+		length: 10,
+		tag: '<pagelist 1=1 1to2="roman" 3=1 />',
+		qAndAns: [
+			{
+				position: 1,
+				response: 'i'
+			},
+			// Report a range that "looks restarted"
+			{
+				position: 10,
+				response: '8'
+			},
+			// Locate the start of the range
+			{
+				position: 3,
+				response: '1'
+			},
+			// Now the second range is complete
+			{
+				position: 2,
+				response: 'ii'
+			}
+		]
+	};
+
+	itTestCase( testCaseDiscontinuousRestartedFormat );
+
 	/* Handle nested range inserts
 	 * Rare in real books, but can cause a nasty logical trip
+   *
+	 * This also hits the range restart logic
+	 *
 	 *             V  V
 	 * 1  2  3  4  5  6  7  8  9 10
 	 * 1  2  3  4  1  -  3  4  7  8
@@ -353,10 +428,6 @@ describe( 'Paginator', () => {
 			{
 				position: 5,
 				response: '1'
-			},
-			{
-				position: 3,
-				response: '3'
 			},
 			{
 				position: 4,

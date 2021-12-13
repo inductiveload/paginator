@@ -101,7 +101,41 @@ class Paginator {
 			// If both ranges are "long-range consistent", we will
 			// try to meet in the middle, which should result in a binary search for the join
 			if ( lastRange.longRangeConsistent() && nextRange.longRangeConsistent() ) {
-				queriedPosition = Math.round( ( lastRange.to + nextRange.from ) / 2 );
+
+				// First - try to extend the right-side (next) range left if it looks like a
+				// much lower range than expected, indicating that it might be a completely
+				// different pagination. Wwe might expect a small difference due to plates, etc,
+				// but not a vastly smaller page number than expect
+
+				// Also, a change in format implies a numbering re-start somewhere
+
+				const lastRangeExtendedTo = lastRange.startValue +
+					( nextRange.from - lastRange.to );
+				const nextRangeExtendedDown = nextRange.from - ( nextRange.startValue - 1 );
+				// the factor of two here is heuristic, it is not a specific value
+				const nextRangeLooksRestarted =
+					nextRange.startValue < ( lastRangeExtendedTo / 2 ) ||
+					( lastRange.format !== nextRange.format );
+
+				if ( nextRangeLooksRestarted &&
+					nextRangeExtendedDown > lastRange.to &&
+					nextRangeExtendedDown < nextRange.from ) {
+					// if:
+					//  - "next" looks like it could be a completely different restarted range and
+					//  - the start of that range would be somewhere in the gap:
+					// then query the start since there's probably a dicontinuity near there
+					queriedPosition = nextRangeExtendedDown;
+				} else if ( nextRangeLooksRestarted && nextRange.startValue === 1 ) {
+					// if:
+					//  - "next" looks like it could be a completely different restarted range and
+					//  - it starts at 1
+					// then: work back from just before it to pin down the end of the previous range
+					queriedPosition = nextRange.from - 1;
+				} else {
+					// probably just some discontinuities in a single range
+					// just bisect the gap to close in on the discontinuities
+					queriedPosition = Math.round( ( lastRange.to + nextRange.from ) / 2 );
+				}
 
 				// The proposals could be consistent with either end of the range
 				// (or maybe neither)
