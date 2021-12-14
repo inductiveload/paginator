@@ -12,7 +12,7 @@ export default createStore( {
 		paginationProcess: {
 			currentPage: 1,
 			viewOffset: 0,
-			totalPages: 1,
+			totalPages: 0,
 			currentImageInfo: undefined,
 			complete: false,
 			numQuestions: 0,
@@ -41,16 +41,20 @@ export default createStore( {
 	mutations: {
 		CHANGE_IMAGE_INFO( state, { indexName, info } ) {
 
-			if ( indexName ) {
+			if ( indexName !== undefined ) {
 				state.index.name = indexName;
 
 				// reset game state
+				state.paginationProcess.currentPage = 1;
+				state.paginationProcess.complete = false;
+				state.paginationProcess.viewOffset = 0;
 				state.paginationProcess.numQuestions = 0;
 				state.paginationProcess.startTime = Date.now();
 			}
-			if ( info ) {
+
+			if ( info !== undefined ) {
 				state.paginationProcess.currentImageInfo = info;
-				state.paginationProcess.totalPages = info.pagecount;
+				state.paginationProcess.totalPages = info ? info.pagecount : 0;
 			}
 		},
 		CHANGE_CURRENT_PAGE( state, newPage ) {
@@ -79,6 +83,10 @@ export default createStore( {
 			console.log( 'index change: ' + indexName );
 
 			if ( !indexName ) {
+				commit( 'CHANGE_IMAGE_INFO', {
+					indexName: null,
+					info: undefined
+				} );
 				return;
 			}
 

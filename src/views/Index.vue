@@ -39,9 +39,6 @@ export default {
 		} )
 	},
 	watch: {
-		narrow: {
-			immediate: true
-		}
 	},
 	mounted() {
 		let index = this.$route.query.index;

@@ -5,11 +5,10 @@
   >
     <path
       :fill="data.total > 0 ? 'grey' : 'transparent'"
-      :style="{transform: `translate(${getXAsPercent( data.current || 1 )}%, 0)`}"
+      :style="{transform: `translate(${getXAsPercent( ( data.current || 1 ) - 0.5 )}%, 0)`}"
       :d="`M-3 ${height} H 3 L 0 ${height - 4} Z`"
     />
     <g
-      :class="$style.completion-bar"
     >
       <rect
         width="100%"
@@ -20,7 +19,7 @@
         v-for="(item, i) in data.children"
         :key="i"
         :class="$style.item"
-        :style="{transform: `translate(${getXAsPercent( item.x )}%, 0)`}"
+        :style="{transform: `translate(${getXAsPercent( item.x - 1 )}%, 0)`}"
       >
         <rect
           :class="$style.rect"
@@ -51,7 +50,7 @@ export default {
 	},
 	methods: {
 		getXAsPercent( x ) {
-			return 100 * x / this.data.total;
+			return 100 * ( x ) / ( this.data.total );
 		}
 	}
 };
@@ -63,9 +62,5 @@ export default {
   padding: 0 5px;
   display: block;
   overflow: visible
-}
-
-.item {
-  transition: transform 0.2s ease-in;
 }
 </style>

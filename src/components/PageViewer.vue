@@ -112,11 +112,10 @@ export default {
 			showFullPageControl: false,
 			preserveViewport: true,
 			animationTime: 0.5,
-			// prefixUrl: '//openseadragon.github.io/openseadragon/images/',
-			// showZoomControl: false,
-			showHomeControl: false,
 			zoomInButton: 'zoom-in-btn',
 			zoomOutButton: 'zoom-out-btn',
+			homeButton: 'zoom-reset-btn',
+			// showNavigator: 'true',
 			gestureSettingsMouse: {
 				clickToZoom: false
 			}

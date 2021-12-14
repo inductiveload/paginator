@@ -5,7 +5,7 @@
 			@submit.prevent
 			label-width="120px"
 			label-position="right"
-			inline=false
+			:inline="false"
 		>
 			<el-form-item
 				label="Wikisource"
@@ -14,7 +14,6 @@
 				<el-select
 					v-model="theWikisource"
 					@change="updateWikisource"
-					:fetch-suggestions="getWikisources"
 					placeholder="Enter Wikisource subdomain"
 					title="Enter Wikisource subdomain"
 				>
@@ -34,8 +33,8 @@
 				<el-autocomplete
 					class="index-input"
 					v-model="theIndexName"
-					@change="updateIndexName"
-					@select="updateIndexName"
+					@change="changeIndexName"
+					@select="selectIndexName"
 					clearable
 					:fetch-suggestions="querySearch"
 					placeholder="Please enter an index"
@@ -79,15 +78,18 @@ export default defineComponent( {
 			this.theWikisource = val;
 		},
 		narrow: {
-			handler( val ) {
+			handler: function ( val ) {
 				this.labelPosition = val ? 'top' : 'right';
 			},
 			immediate: true
 		}
 	},
 	methods: {
-		updateIndexName( event ) {
-			this.$store.dispatch( 'changeIndex', event.value );
+		selectIndexName( event ) {
+			this.changeIndexName( event.value );
+		},
+		changeIndexName( indexName ) {
+			this.$store.dispatch( 'changeIndex', indexName );
 		},
 		updateWikisource( value ) {
 			this.$store.dispatch( 'setWikisource', value );

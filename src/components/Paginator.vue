@@ -27,7 +27,7 @@
 							placeholder="Page number"
 							@keyup.enter="onPagenumberInput( this.pageNumber )"
 							clearable
-							:disabled="!isIndexValid"
+							:disabled="disableInputs"
 						/>
 					</el-form-item>
 				</el-form>
@@ -91,22 +91,27 @@ export default defineComponent( {
 		isIndexValid() {
 			const state = this.$store.state;
 			return state.index.name &&
-				!state.paginationProcess.complete;
+				!state.paginationProcess.complete &&
+				state.paginationProcess.totalPages > 0;
 		}
 	},
 	watch: {
 		indexName( newVal ) {
 			console.log( `Index changed, remaking pagination: ${newVal}` );
 
-			if ( !newVal ) {
+			this.pageListTag = '<pagelist/>';
+			this.uncertaintyData.total = this.$store.state.paginationProcess.totalPages;
+
+			if ( !this.isIndexValid ) {
 				this.posStr = '—';
 				this.paginator = null;
 				return;
 			}
+
 			this.paginator = new Paginator(
 				this.$store.state.paginationProcess.totalPages
 			);
-			this.uncertaintyData.total = this.$store.state.paginationProcess.totalPages;
+
 			this.askQuestion();
 		},
 		isComplete() {
@@ -114,6 +119,9 @@ export default defineComponent( {
 		},
 		currentPage() {
 			this.posStr = this.getNewPosStr();
+		},
+		isIndexValid( valid ) {
+			this.disableInputs = !valid;
 		},
 		narrow: {
 			handler( /* val */ ) {
@@ -233,6 +241,7 @@ export default defineComponent( {
 				background: '#63acbe', // avoid red/green combo
 				children: []
 			} ),
+			disableInputs: ref( true ),
 			posStr,
 			quickOptions,
 			position,
