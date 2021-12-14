@@ -32,6 +32,10 @@ class PageRange {
 	getAttrStrings() {
 		throw new Error( 'Not implemented' );
 	}
+
+	immediatelyPrecedes( maybeNext ) {
+		return this.to === maybeNext.from - 1;
+	}
 }
 
 class NumericRange extends PageRange {
@@ -253,6 +257,10 @@ class Pagelist {
 		insertSorted( this.ranges, range, ( a, b ) => a.from - b.from );
 	}
 
+	rangeCount() {
+		return this.ranges.length;
+	}
+
 	/**
 	 * Get the last range that _Starts_ before the given point (even it ends after)
 	 * @param {int} point
@@ -349,19 +357,33 @@ class Pagelist {
 			const thisRange = this.ranges[ i - 1 ];
 			const nextRange = this.ranges[ i ];
 
+			const rangesAbut = thisRange.immediatelyPrecedes( nextRange );
+
 			// meregable abutting ranges
-			if (
-				thisRange.to + 1 === nextRange.from &&
-				thisRange.canBeMergedOver() &&
-				nextRange.longRangeConsistent() ) {
-				const mergeLength = Math.min( nextRange.startValue - 1, thisRange.length() );
+			if ( rangesAbut ) {
+				if ( thisRange.canBeMergedOver() &&
+					nextRange.longRangeConsistent() ) {
 
-				nextRange.startValue -= mergeLength;
-				nextRange.from -= mergeLength;
-				thisRange.to -= mergeLength;
+					// [ ..., ? ], [ n, n + 1....] => [ ..., n - 1, n, n + 1 ]
 
-				if ( thisRange.to <= thisRange.from ) {
-					this.ranges.splice( i - 1, 1 );
+					// can't merge nextRange left further than 1
+					const mergeLength = Math.min( nextRange.startValue - 1, thisRange.length() );
+
+					nextRange.startValue -= mergeLength;
+					nextRange.from -= mergeLength;
+					thisRange.to -= mergeLength;
+
+					// delete the merged-over range if it's be completely subsumed
+					if ( thisRange.to < thisRange.from ) {
+						this.ranges.splice( i - 1, 1 );
+					}
+				} else if ( nextRange.canBeMergedOver() &&
+					thisRange.longRangeConsistent() ) {
+
+					// [ n, n + 1....], [ ?, ... ] => [ n, n + 1, n + 2, ...]
+					thisRange.to += nextRange.length();
+					// delete the merged-over range
+					this.ranges.splice( i, 1 );
 				}
 			}
 		}
