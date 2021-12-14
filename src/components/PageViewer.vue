@@ -3,13 +3,21 @@
 		<div class="page-view-controls">
 			<el-button
 				id="zoom-in-btn"
+				:icon="ZoomIn"
+				title="Zoom in"
 				size=mini>
-				Zoom in
 			</el-button>
 			<el-button
 				id="zoom-out-btn"
+				:icon="ZoomOut"
+				title="Zoom out"
 				size=mini>
-				Zoom out
+			</el-button>
+			<el-button
+				id="zoom-reset-btn"
+				:icon="ScaleToOriginal"
+				title="Reset zoom"
+				size=mini>
 			</el-button>
 				<el-button
 					size=mini
@@ -40,6 +48,7 @@
 <script>
 const OpenSeadragon = require( 'openseadragon' );
 
+import { ScaleToOriginal, ZoomIn, ZoomOut } from '@element-plus/icons-vue';
 import { mapState } from 'vuex';
 
 export default {
@@ -154,6 +163,13 @@ export default {
 				url: this.filePageUrl
 			} );
 		}
+	},
+	setup() {
+		return {
+			ScaleToOriginal,
+			ZoomIn,
+			ZoomOut
+		};
 	}
 };
 </script>

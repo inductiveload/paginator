@@ -13,6 +13,10 @@ class UncertainInterval {
 		this.to = to;
 	}
 
+	length() {
+		return this.to - this.from + 1;
+	}
+
 	/**
 	 * Split or trim this range, returning zero, one or two new ranges
 	 * as an array

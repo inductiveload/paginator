@@ -15,6 +15,9 @@
 						label="Position"
 					>
 					{{ posStr }}
+					<UncertaintyBar
+						v-bind="{ data: uncertaintyData, width: 600, height: uncertaintyBarHeight }"
+					/>
 					</el-form-item>
 					<el-form-item
 						label="Page number"
@@ -22,7 +25,7 @@
 						<el-input
 							v-model="pageNumber"
 							placeholder="Page number"
-							@change="onPagenumberInput"
+							@keyup.enter="onPagenumberInput( this.pageNumber )"
 							clearable
 							:disabled="!isIndexValid"
 						/>
@@ -33,17 +36,18 @@
 				class="pagelist-area-container"
 				:xs="8" :sm="12" :md="10" :lg="10" :xl="10">
 				<el-input
+					ref="pagelist-tag"
 					v-model="pageListTag"
 					readonly
 					:rows="5"
 					type="textarea"
 					placeholder="No pagelist yet..."
 					v-bind:class="{ isComplete }"
-					@click="copyPagelistTag"
 				/>
 				<el-button
 					size=mini
 					:icon="CopyDocument"
+					@click="copyPagelistTag"
 				>
 					Copy pagelist
 				</el-button>
@@ -65,11 +69,16 @@ import { ref, defineComponent } from 'vue';
 import { CopyDocument } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 
+import UncertaintyBar from '@/components/UncertaintyBar.vue';
+
 import { Paginator } from '../paginator.js';
 import { mapState, mapGetters } from 'vuex';
 
 export default defineComponent( {
 	name: 'PageViewer',
+	components: {
+		UncertaintyBar
+	},
 	computed: {
 		...mapState( {
 			indexName: ( state ) => state.index.name,
@@ -97,6 +106,7 @@ export default defineComponent( {
 			this.paginator = new Paginator(
 				this.$store.state.paginationProcess.totalPages
 			);
+			this.uncertaintyData.total = this.$store.state.paginationProcess.totalPages;
 			this.askQuestion();
 		},
 		isComplete() {
@@ -106,7 +116,7 @@ export default defineComponent( {
 			this.posStr = this.getNewPosStr();
 		},
 		narrow: {
-			handler( val ) {
+			handler( /* val */ ) {
 				// this.labelPosition = val ? 'top' : 'right';
 				this.labelPosition = 'right';
 			},
@@ -155,6 +165,21 @@ export default defineComponent( {
 				this.alertComplete();
 			}
 			this.posStr = this.getNewPosStr();
+
+			// fill the uncertainty bar
+			this.uncertaintyData.current = this.$store.state.paginationProcess.currentPage;
+			this.uncertaintyData.children = [];
+
+			for ( const uc of this.paginator.uncertainties ) {
+				const block = {
+					width: uc.length(),
+					x: uc.from,
+					data: {
+						color: 'tomato'
+					}
+				};
+				this.uncertaintyData.children.push( block );
+			}
 		},
 		getNewPosStr() {
 			if ( this.$store.state.paginationProcess.complete ) {
@@ -169,7 +194,9 @@ export default defineComponent( {
 			this.posStr = this.getNewPosStr();
 		},
 		copyPagelistTag() {
+			this.$refs[ 'pagelist-tag' ].select();
 			navigator.clipboard.writeText( this.pageListTag );
+
 		},
 		alertComplete() {
 			ElMessageBox.confirm(
@@ -201,6 +228,11 @@ export default defineComponent( {
 			CopyDocument,
 			labelPosition: ref( 'right' ),
 			paginator: null,
+			uncertaintyBarHeight: ref( 13 ),
+			uncertaintyData: ref( {
+				background: '#63acbe', // avoid red/green combo
+				children: []
+			} ),
 			posStr,
 			quickOptions,
 			position,
@@ -226,6 +258,12 @@ export default defineComponent( {
 
 .suggested-numbers {
 	justify-content: center;
+}
+
+.suggested-numbers button {
+	margin: 3px 0;
+	padding: 0 8px;
+	min-width: 3em;
 }
 
 </style>
