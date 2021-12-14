@@ -122,6 +122,10 @@ export default defineComponent( {
 		},
 		isIndexValid( valid ) {
 			this.disableInputs = !valid;
+
+			if ( !valid ) {
+				this.uncertaintyData.total = 0;
+			}
 		},
 		narrow: {
 			handler( /* val */ ) {
