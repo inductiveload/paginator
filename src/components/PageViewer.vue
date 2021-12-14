@@ -205,6 +205,7 @@ export default {
 	flex-grow: 1;
 	flex-direction: column;
 	min-height: 400px;
+	margin-bottom: 10px;
 }
 
 .narrow .page-viewer {

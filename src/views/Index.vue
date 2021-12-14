@@ -82,6 +82,7 @@ export default {
 }
 
 .outer {
+	margin: 0 10px;
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -95,6 +96,7 @@ html {
 }
 
 html,body {
+	margin: 0;
   box-sizing: border-box;
 }
 </style>

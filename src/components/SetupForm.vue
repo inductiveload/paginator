@@ -5,7 +5,7 @@
 			@submit.prevent
 			label-width="120px"
 			label-position="right"
-			inline=true
+			inline=false
 		>
 			<el-form-item
 				label="Wikisource"
@@ -29,6 +29,7 @@
 			</el-form-item>
 			<el-form-item
 				label="Index"
+				class="index-input-container"
 			>
 				<el-autocomplete
 					class="index-input"
@@ -152,12 +153,13 @@ export default defineComponent( {
 </script>
 
 <style>
-.setup-form {
-	text-align: left;
-}
-
 .index-input {
 	width: 100%;
+}
+
+.index-input-container {
+	max-width: calc( 100% - 10px );
+	width: 40em;
 }
 
 .el-form-item {
