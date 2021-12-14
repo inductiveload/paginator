@@ -16,6 +16,7 @@
 					@change="updateWikisource"
 					:fetch-suggestions="getWikisources"
 					placeholder="Enter Wikisource subdomain"
+					title="Enter Wikisource subdomain"
 				>
 					<el-option
 						v-for="item in wikisources"
@@ -38,13 +39,13 @@
 					:fetch-suggestions="querySearch"
 					placeholder="Please enter an index"
 				>
-					<template #append>
+					<template  size="mini" #append>
 						<el-button
+							size="mini"
 							:icon="TopRight"
 							@click="openIndex"
 							title="Visit on Wikisource"
-						>
-						</el-button>
+						/>
 					</template>
 				</el-autocomplete>
 			</el-form-item>
@@ -52,10 +53,11 @@
 	</div>
 </template>
 <script>
+
 import { ref, defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
-import { TopRight } from '@element-plus/icons-vue';
-import { getIndexesWithPrefix, getIndexName } from '../mw_utils.js';
+import { TopRight, Search } from '@element-plus/icons-vue';
+import { getIndexesWithPrefix, getIndexName } from '@/mw_utils.js';
 
 export default defineComponent( {
 	name: 'PageViewer',
@@ -115,6 +117,10 @@ export default defineComponent( {
 				indexName );
 
 			window.open( url );
+		},
+		lookupIndex() {
+			console.log( 'Looking up index' );
+			this.lookupIndexDialogVisible = true;
 		}
 	},
 	setup() {
@@ -136,8 +142,10 @@ export default defineComponent( {
 			theIndexName: ref( '' ),
 			theWikisource: ref( '' ),
 			labelPosition: ref( 'right' ),
+			lookupIndexDialogVisible: ref( false ),
 			wikisources,
-			TopRight
+			TopRight,
+			Search
 		};
 	}
 } );
