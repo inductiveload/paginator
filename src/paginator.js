@@ -183,8 +183,35 @@ class Paginator {
 		if ( lastVal ) {
 			proposals.push( lastVal );
 		}
+
 		if ( nextVal ) {
 			proposals.push( nextVal );
+		}
+
+		if ( nextVal && lastVal ) {
+			// It's common that we're spearated from the actual range by one or more
+			// image-blank pairs.
+			// Because we're doing a binary search or something like it, there's
+			// usually the same number of plates on each side, so suggest an average
+			if ( Number.isInteger( lastVal ) && Number.isInteger( nextVal ) &&
+				( lastVal - nextVal ) > 2 ) {
+
+				if ( ( lastVal - nextVal ) % 4 === 0 ) {
+					proposals.push( ( lastVal + nextVal ) / 2 );
+				} else if ( ( lastVal - nextVal ) % 2 === 0 ) {
+					proposals.push( ( lastVal + nextVal - 2 ) / 2 );
+					proposals.push( ( lastVal + nextVal + 2 ) / 2 );
+				}
+			} else {
+				// one side is not a number, so possibly we're right on an image-blank pair edge
+				if ( lastVal && Number.isInteger( lastVal ) ) {
+					proposals.push( lastVal - 2 );
+				}
+
+				if ( nextVal && Number.isInteger( nextVal ) ) {
+					proposals.push( nextVal + 2 );
+				}
+			}
 		}
 
 		// These proposals are usually plausible
@@ -233,6 +260,10 @@ class Paginator {
 
 		if ( aCode !== bCode ) {
 			return aCode - bCode;
+		}
+
+		if ( aCode === 1 ) {
+			return a - b;
 		}
 
 		if ( aCode === 2 || aCode === 3 ) {
