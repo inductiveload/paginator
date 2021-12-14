@@ -75,7 +75,7 @@ import { Paginator } from '../paginator.js';
 import { mapState, mapGetters } from 'vuex';
 
 export default defineComponent( {
-	name: 'PageViewer',
+	name: 'Paginator',
 	components: {
 		UncertaintyBar
 	},

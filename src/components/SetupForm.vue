@@ -60,7 +60,7 @@ import { TopRight, Search } from '@element-plus/icons-vue';
 import { getIndexesWithPrefix, getIndexName } from '@/mw_utils.js';
 
 export default defineComponent( {
-	name: 'PageViewer',
+	name: 'SetupForm',
 	computed: {
 		...mapState( {
 			indexName: state => state.index.name,
