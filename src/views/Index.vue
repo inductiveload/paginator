@@ -8,6 +8,7 @@
 
 <script>
 import PageViewer from '@/components/PageViewer.vue';
+// import GameStatus from '@/components/GameStatus.vue';
 import SetupForm from '@/components/SetupForm.vue';
 import Paginator from '@/components/Paginator.vue';
 
@@ -16,6 +17,7 @@ export default {
 	components: {
 		PageViewer,
 		SetupForm,
+		// GameStatus,
 		Paginator
 	},
 	data() {
