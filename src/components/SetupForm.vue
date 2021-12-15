@@ -39,12 +39,33 @@
 					placeholder="Please enter an index"
 				>
 					<template  size="mini" #append>
-						<el-button
-							size="mini"
-							:icon="TopRight"
-							@click="openIndex"
-							title="Visit on Wikisource"
-						/>
+						<el-popover
+							:disabled="theIndexName"
+							placement="bottom"
+							:width="200"
+							trigger="click"
+						>
+							<el-link
+								:href="openIndex"
+								target="_blank"
+							>
+								View
+							</el-link>
+							|
+							<el-link
+								:href="openIndex + '?action=edit'"
+								target="_blank"
+							>
+								Edit index
+							</el-link>
+							<template #reference>
+								<el-button
+									size="mini"
+									:icon="TopRight"
+									title="Index page at Wikisource"
+								/>
+							</template>
+						</el-popover>
 					</template>
 				</el-autocomplete>
 			</el-form-item>
@@ -57,6 +78,7 @@ import { ref, defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import { TopRight, Search } from '@element-plus/icons-vue';
 import { getIndexesWithPrefix, getIndexName } from '@/mw_utils.js';
+import { wikisourceDomains } from '@/ws_data.js';
 
 export default defineComponent( {
 	name: 'SetupForm',
@@ -67,7 +89,20 @@ export default defineComponent( {
 		} ),
 		...mapGetters( {
 			narrow: 'isNarrow'
-		} )
+		} ),
+		openIndex() {
+
+			const indexName = this.$store.state.index.name;
+
+			if ( !indexName ) {
+				return;
+			}
+
+			let url = getIndexName(
+				this.$store.state.wikisource,
+				indexName );
+			return url;
+		}
 	},
 	watch: {
 		indexName( val ) {
@@ -121,33 +156,12 @@ export default defineComponent( {
 					cb( values );
 				} );
 		},
-		openIndex() {
-
-			const indexName = this.$store.state.index.name;
-
-			if ( !indexName ) {
-				return;
-			}
-
-			const url = getIndexName(
-				this.$store.state.wikisource,
-				indexName );
-
-			window.open( url );
-		},
 		lookupIndex() {
 			console.log( 'Looking up index' );
 			this.lookupIndexDialogVisible = true;
 		}
 	},
 	setup() {
-
-		const wikisourceDomains = [
-			'en', 'mul', 'ar', 'as', 'be', 'bn', 'br', 'ca', 'cy', 'da',
-			'de', 'el', 'eo', 'es', 'et', 'fa', 'fr', 'gu', 'he', 'hr',
-			'hu', 'hy', 'id', 'it', 'kn', 'la', 'ml', 'mr', 'nl', 'no',
-			'pl', 'pms', 'pt', 'ro', 'ru', 'sa', 'sl', 'sv', 'te', 'vec', 'vi', 'zh'
-		];
 
 		const wikisources = ref( wikisourceDomains.map( ( ws ) => {
 			return {

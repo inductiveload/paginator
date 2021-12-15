@@ -1,7 +1,6 @@
 const axios = require( 'axios' ).default;
 
-import { indexToCheckCategoryByDomain } from '@/index_cats.js';
-import { getIndexNs } from '@/index_ns.js';
+import { indexToCheckCategoryByDomain, getIndexNs } from '@/ws_data.js';
 
 const limit = 50;
 
