@@ -2,18 +2,21 @@
 	<div
 		:class="{ outer: true, narrow: narrow }"
 	>
-    <!--<div id="nav">
-        <router-link to="/">Index</router-link>
-    </div>-->
+    <TopMenu msg="The Wikisource Page Game"/>
     <router-view />
   </div>
 </template>
 
 <script>
+import TopMenu from '@/components/TopMenu.vue';
+
 import { mapGetters } from 'vuex';
 
 export default {
 	name: 'PageGameApp',
+	components: {
+		TopMenu
+	},
 	computed: {
 		...mapGetters( {
 			narrow: 'isNarrow'

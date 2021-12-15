@@ -11,12 +11,14 @@
   "dependencies": {
     "@element-plus/icons-vue": "^0.2.4",
     "axios": "^0.24.0",
+    "babel-runtime": "^6.26.0",
     "core-js": "^3.6.5",
     "element-plus": "^1.2.0-beta.5",
     "eslint-plugin-mediawiki": "^0.3.0",
     "openseadragon": "^2.4.2",
     "vue": "^3.0.0",
     "vue-router": "^4.0.12",
+    "vue3-markdown-it": "^1.0.9",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

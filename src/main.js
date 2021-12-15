@@ -7,12 +7,18 @@ import App from './App.vue';
 import store from '@/store/index'; // short for @/store/index
 
 import Index from '@/views/Index.vue';
+import About from '@/views/About.vue';
 
 const routes = [
 	{
 		path: '/',
 		name: 'Index',
 		component: Index
+	},
+	{
+		path: '/about',
+		name: 'About',
+		component: About
 	}
 ];
 

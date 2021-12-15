@@ -1,5 +1,4 @@
 <template>
-	<HelloWorld msg="The Wikisource Page Game"/>
 	<SetupForm
 		@indexChanged="indexChanged($event)"
 	/>
@@ -10,7 +9,6 @@
 </template>
 
 <script>
-import HelloWorld from '@/components/HelloWorld.vue';
 import PageViewer from '@/components/PageViewer.vue';
 import SetupForm from '@/components/SetupForm.vue';
 import Paginator from '@/components/Paginator.vue';
@@ -18,7 +16,6 @@ import Paginator from '@/components/Paginator.vue';
 export default {
 	name: 'Index',
 	components: {
-		HelloWorld,
 		PageViewer,
 		SetupForm,
 		Paginator
