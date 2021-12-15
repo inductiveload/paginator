@@ -116,7 +116,7 @@ export default defineComponent( {
 			this.posStr = this.getNewPosStr();
 		},
 		indexValid( valid ) {
-			this.disableInputs = !valid;
+			this.disableInputs = !valid || this.isComplete;
 
 			if ( !valid ) {
 				this.uncertaintyData.total = 0;

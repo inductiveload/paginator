@@ -40,7 +40,6 @@ export default createStore( {
 		indexValid: ( state ) => {
 			return state.index.name &&
 				state.paginationProcess.currentImageInfo &&
-				!state.paginationProcess.complete &&
 				state.paginationProcess.totalPages > 0;
 		}
 	},
