@@ -4,6 +4,7 @@
     :height="height"
   >
     <path
+      :class="$style.pointer"
       :fill="data.total > 0 ? 'grey' : 'transparent'"
       :style="{transform: `translate(${getXAsPercent( ( data.current || 1 ) - 0.5 )}%, 0)`}"
       :d="`M-3 ${height} H 3 L 0 ${height - 4} Z`"
@@ -62,5 +63,9 @@ export default {
   padding: 0 5px;
   display: block;
   overflow: visible
+}
+
+.pointer {
+  transition: transform 0.5s ease;
 }
 </style>
