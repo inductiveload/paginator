@@ -63,15 +63,17 @@ class Paginator {
 		}
 		this.numPages = numPages;
 
+		this.reset();
+	}
+
+	reset() {
 		// Start with the whole range as unknown
 		this.uncertainties = [
-			new UncertainInterval( 1, numPages )
+			new UncertainInterval( 1, this.numPages )
 		];
 
 		// Empty page list
 		this.pagelist = new Pagelist.Pagelist();
-
-		this.cursor = 1;
 	}
 
 	/**

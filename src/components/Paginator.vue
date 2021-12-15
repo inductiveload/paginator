@@ -15,6 +15,14 @@
 						label="Position"
 					>
 					{{ posStr }}
+					<el-button
+					size=mini
+					:disabled="!indexValid"
+					style="float:right;"
+					@click="resetPaginator"
+					>
+						Restart
+					</el-button>
 					<UncertaintyBar
 						v-bind="{ data: uncertaintyData, width: 600, height: uncertaintyBarHeight }"
 					/>
@@ -94,20 +102,19 @@ export default defineComponent( {
 		indexName( newVal ) {
 			console.log( `Index changed, remaking pagination: ${newVal}` );
 
-			this.pageListTag = '<pagelist/>';
 			this.uncertaintyData.total = this.$store.state.paginationProcess.totalPages;
 
 			if ( !this.indexValid ) {
 				this.posStr = '—';
 				this.paginator = null;
+				this.pageListTag = '<pagelist/>';
 				return;
 			}
 
 			this.paginator = new Paginator(
 				this.$store.state.paginationProcess.totalPages
 			);
-
-			this.askQuestion();
+			this.indexReady();
 		},
 		isComplete() {
 			this.posStr = this.getNewPosStr();
@@ -197,13 +204,19 @@ export default defineComponent( {
 				`${this.$store.state.paginationProcess.totalPages }`;
 		},
 		indexReady() {
+			this.pageListTag = this.paginator.pagelist.toTag();
 			this.askQuestion();
-			this.posStr = this.getNewPosStr();
 		},
 		copyPagelistTag() {
 			this.$refs[ 'pagelist-tag' ].select();
 			navigator.clipboard.writeText( this.pageListTag );
 
+		},
+		resetPaginator() {
+			if ( this.paginator ) {
+				this.paginator.reset();
+			}
+			this.indexReady();
 		},
 		alertComplete() {
 			ElMessageBox.confirm(
