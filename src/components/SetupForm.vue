@@ -33,7 +33,6 @@
 				<el-autocomplete
 					class="index-input"
 					v-model="theIndexName"
-					@change="changeIndexName"
 					@select="selectIndexName"
 					clearable
 					:fetch-suggestions="querySearch"
@@ -94,13 +93,28 @@ export default defineComponent( {
 		updateWikisource( value ) {
 			this.$store.dispatch( 'setWikisource', value );
 		},
+		// strip namespace, spaces, etc
+		normaliseIndex( name ) {
+			return name
+				.replace( /^[^ :]+:/, '' )
+				.replace( /_/g, ' ' );
+		},
 		querySearch( query, cb ) {
 			const domain = this.$store.state.wikisource;
+			const currIndex = this.$store.state.index.name;
+
+			// if dropping down with the current index in place, proposed the "empty list"
+			// defaults for choosing a new index
+			if ( query && currIndex &&
+				this.normaliseIndex( query ) === this.normaliseIndex( currIndex ) ) {
+				query = '';
+			}
+
 			getIndexesWithPrefix( domain, query )
 				.then( ( apiVals ) => {
 					const values = apiVals.map( ( v ) => {
 						return {
-							value: v.title.replace( /^[^ :]+:/, '' )
+							value: this.normaliseIndex( v.title )
 						};
 					} );
 

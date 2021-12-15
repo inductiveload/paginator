@@ -1,16 +1,12 @@
 <template>
-	<div
-		:class="{ outer: true, narrow: narrow }"
-	>
-		<HelloWorld msg="The Wikisource Page Game"/>
-		<SetupForm
-			@indexChanged="indexChanged($event)"
-		/>
-		<Paginator
-		/>
-		<PageViewer
-		/>
-	</div>
+	<HelloWorld msg="The Wikisource Page Game"/>
+	<SetupForm
+		@indexChanged="indexChanged($event)"
+	/>
+	<Paginator
+	/>
+	<PageViewer
+	/>
 </template>
 
 <script>
@@ -19,10 +15,8 @@ import PageViewer from '@/components/PageViewer.vue';
 import SetupForm from '@/components/SetupForm.vue';
 import Paginator from '@/components/Paginator.vue';
 
-import { mapGetters } from 'vuex';
-
 export default {
-	name: 'PaginatorApp',
+	name: 'Index',
 	components: {
 		HelloWorld,
 		PageViewer,
@@ -32,13 +26,6 @@ export default {
 	data() {
 		return {
 		};
-	},
-	computed: {
-		...mapGetters( {
-			narrow: 'isNarrow'
-		} )
-	},
-	watch: {
 	},
 	mounted() {
 		let index = this.$route.query.index;
@@ -51,32 +38,11 @@ export default {
 			index = index.replace( /^[\s]+:/, '' );
 			this.$store.dispatch( 'changeIndex', index );
 		}
-
-		this.handleResize();
-	},
-	methods: {
-		handleResize() {
-			this.$store.dispatch( 'setWindowParams', {
-				width: window.innerWidth
-			} );
-		}
-	},
-	created: function () {
-		window.addEventListener( 'resize', this.handleResize );
-	},
-	unmounted() {
-		window.removeEventListener( 'resize', this.handleResize );
 	}
 };
 </script>
 
 <style>
-#app {
-	font-family: Avenir, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	color: #2c3e50;
-}
 
 .outer {
 	margin: 0 10px;
@@ -94,6 +60,5 @@ html {
 
 html,body {
 	margin: 0;
-  box-sizing: border-box;
 }
 </style>
