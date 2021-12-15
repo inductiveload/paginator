@@ -74,6 +74,28 @@ class Paginator {
 
 		// Empty page list
 		this.pagelist = new Pagelist.Pagelist();
+
+		// grotty undo implementation: just replay the answers
+		// could also clone the state
+		this.answerHistory = [];
+	}
+
+	/**
+	 * Undo the last step in the pagination
+	 */
+	undo() {
+		console.log( 'undo lol' );
+
+		// remove one answer
+		this.answerHistory.pop();
+		// clone the answers
+		const oldHistory = [ ...this.answerHistory ];
+
+		this.reset();
+
+		for ( const answer of oldHistory ) {
+			this.addAnswer( answer.position, answer.value );
+		}
 	}
 
 	/**
@@ -314,6 +336,11 @@ class Paginator {
 		if ( value === '-' ) {
 			value = '–';
 		}
+
+		this.answerHistory.push( {
+			position,
+			value
+		} );
 
 		if ( this.pagelist.ranges.length === 0 ) {
 			// no page ranges, so create one

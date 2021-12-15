@@ -14,15 +14,39 @@
 					<el-form-item
 						label="Position"
 					>
-					{{ posStr }}
-					<el-button
-					size=mini
-					:disabled="!indexValid"
-					style="float:right;"
-					@click="resetPaginator"
+					<div
+						style="display:flex; flex-wrap: wrap; justify-content: space-between;"
 					>
-						Restart
-					</el-button>
+						<div>
+							{{ posStr }}
+						</div>
+						<div>
+							<el-button
+							size=mini
+							:disabled="!indexValid"
+							@click="undoPaginator"
+							title="Undo the last answer"
+							>
+								Undo
+							</el-button>
+							<el-button
+							size=mini
+							:disabled="!indexValid"
+							@click="resetPaginator"
+							title="Reset the pagelist for this index and start again"
+							>
+								Restart
+							</el-button>
+							<el-button
+							size=mini
+							:disabled="!indexValid"
+							@click="showAnswerLog"
+							title="Show the answers given so far (include these with a bug report)"
+							>
+								Log
+							</el-button>
+						</div>
+					</div>
 					<UncertaintyBar
 						v-bind="{ data: uncertaintyData, width: 600, height: uncertaintyBarHeight }"
 					/>
@@ -70,6 +94,15 @@
 				{{ option.value }}
 			</el-button>
 		</el-row>
+		<el-dialog
+			v-model="logDialogVisible"
+			:key=answerLogKey
+			title="Answer log"
+		>
+			<answer-log
+				:data=answerLogData
+			/>
+		</el-dialog>
 	</div>
 </template>
 <script>
@@ -78,6 +111,7 @@ import { CopyDocument } from '@element-plus/icons-vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 
 import UncertaintyBar from '@/components/UncertaintyBar.vue';
+import AnswerLog from '@/components/AnswerLog.vue';
 
 import { Paginator } from '../paginator.js';
 import { mapState, mapGetters } from 'vuex';
@@ -85,11 +119,13 @@ import { mapState, mapGetters } from 'vuex';
 export default defineComponent( {
 	name: 'Paginator',
 	components: {
-		UncertaintyBar
+		UncertaintyBar,
+		AnswerLog
 	},
 	computed: {
 		...mapState( {
 			indexName: ( state ) => state.index.name,
+			wikisource: ( state ) => state.wikisource,
 			isComplete: ( state ) => state.paginationProcess.complete,
 			currentPage: ( state ) => state.paginationProcess.currentPage
 		} ),
@@ -130,9 +166,9 @@ export default defineComponent( {
 			}
 		},
 		narrow: {
-			handler( /* val */ ) {
-				// this.labelPosition = val ? 'top' : 'right';
-				this.labelPosition = 'right';
+			handler( val ) {
+				this.labelPosition = val ? 'top' : 'right';
+				// this.labelPosition = 'right';
 			},
 			immediate: true
 		}
@@ -218,10 +254,27 @@ export default defineComponent( {
 			}
 			this.indexReady();
 		},
+		undoPaginator() {
+			if ( this.paginator ) {
+				this.paginator.undo();
+			}
+			this.indexReady();
+		},
+		showAnswerLog() {
+			if ( this.paginator ) {
+				this.answerLogData = {
+					answers: [ ...this.paginator.answerHistory ],
+					index: this.indexName,
+					wikisource: this.wikisource
+				};
+				this.answerLogKey++;
+				this.logDialogVisible = true;
+			}
+		},
 		alertComplete() {
 			ElMessageBox.confirm(
-				'The pagelist has been completed. 🎉',
-				'Complete',
+				'The pagelist has been completed.',
+				'Complete 🎉',
 				{
 					confirmButtonText: 'Copy pagelist',
 					cancelButtonText: 'Cancel',
@@ -254,6 +307,9 @@ export default defineComponent( {
 				children: []
 			} ),
 			disableInputs: ref( true ),
+			logDialogVisible: ref( false ),
+			answerLogData: {},
+			answerLogKey: ref( 0 ),
 			posStr,
 			quickOptions,
 			position,
@@ -264,6 +320,11 @@ export default defineComponent( {
 } );
 </script>
 <style>
+
+.form-container .el-form--label-top label {
+	padding-bottom: 3px !important;
+	line-height: 1;
+}
 
 .paginator-container {
 	align-items: end;
