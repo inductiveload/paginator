@@ -80,6 +80,8 @@ export default {
 				this.$store.state.paginationProcess.viewOffset
 			);
 
+			this.viewer.world.removeAll();
+
 			const ii = await this.$store.getters.imageInfo( offset );
 
 			if ( !ii ) {
@@ -87,7 +89,6 @@ export default {
 				return;
 			}
 
-			this.viewer.world.removeAll();
 			this.viewer.addSimpleImage( {
 				url: ii.thumburl
 			} );

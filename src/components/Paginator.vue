@@ -86,14 +86,9 @@ export default defineComponent( {
 			currentPage: ( state ) => state.paginationProcess.currentPage
 		} ),
 		...mapGetters( {
-			narrow: 'isNarrow'
-		} ),
-		isIndexValid() {
-			const state = this.$store.state;
-			return state.index.name &&
-				!state.paginationProcess.complete &&
-				state.paginationProcess.totalPages > 0;
-		}
+			narrow: 'isNarrow',
+			indexValid: 'indexValid'
+		} )
 	},
 	watch: {
 		indexName( newVal ) {
@@ -102,7 +97,7 @@ export default defineComponent( {
 			this.pageListTag = '<pagelist/>';
 			this.uncertaintyData.total = this.$store.state.paginationProcess.totalPages;
 
-			if ( !this.isIndexValid ) {
+			if ( !this.indexValid ) {
 				this.posStr = '—';
 				this.paginator = null;
 				return;
@@ -120,7 +115,7 @@ export default defineComponent( {
 		currentPage() {
 			this.posStr = this.getNewPosStr();
 		},
-		isIndexValid( valid ) {
+		indexValid( valid ) {
 			this.disableInputs = !valid;
 
 			if ( !valid ) {

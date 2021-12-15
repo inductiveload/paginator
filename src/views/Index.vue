@@ -1,7 +1,5 @@
 <template>
-	<SetupForm
-		@indexChanged="indexChanged($event)"
-	/>
+	<SetupForm />
 	<Paginator
 	/>
 	<PageViewer

@@ -36,6 +36,12 @@ export default createStore( {
 		},
 		isNarrow: ( state ) => {
 			return state.window.width < 500;
+		},
+		indexValid: ( state ) => {
+			return state.index.name &&
+				state.paginationProcess.currentImageInfo &&
+				!state.paginationProcess.complete &&
+				state.paginationProcess.totalPages > 0;
 		}
 	},
 	mutations: {

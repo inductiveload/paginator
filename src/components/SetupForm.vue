@@ -34,13 +34,14 @@
 					class="index-input"
 					v-model="theIndexName"
 					@select="selectIndexName"
+					@change="changeIndexName"
 					clearable
 					:fetch-suggestions="querySearch"
 					placeholder="Please enter an index"
 				>
 					<template  size="mini" #append>
 						<el-popover
-							:disabled="theIndexName"
+							:disabled="!indexValid"
 							placement="bottom"
 							:width="200"
 							trigger="click"
@@ -53,7 +54,7 @@
 							</el-link>
 							|
 							<el-link
-								:href="openIndex + '?action=edit'"
+								:href="editIndexHref"
 								target="_blank"
 							>
 								Edit index
@@ -78,7 +79,7 @@ import { ref, defineComponent } from 'vue';
 import { mapState, mapGetters } from 'vuex';
 import { TopRight, Search } from '@element-plus/icons-vue';
 import { getIndexesWithPrefix, getIndexName } from '@/mw_utils.js';
-import { wikisourceDomains } from '@/ws_data.js';
+import { wikisourceDomains, getPagelistSummary } from '@/ws_data.js';
 
 export default defineComponent( {
 	name: 'SetupForm',
@@ -88,10 +89,10 @@ export default defineComponent( {
 			wikisource: state => state.wikisource
 		} ),
 		...mapGetters( {
-			narrow: 'isNarrow'
+			narrow: 'isNarrow',
+			indexValid: 'indexValid'
 		} ),
 		openIndex() {
-
 			const indexName = this.$store.state.index.name;
 
 			if ( !indexName ) {
@@ -101,6 +102,14 @@ export default defineComponent( {
 			let url = getIndexName(
 				this.$store.state.wikisource,
 				indexName );
+			return url;
+		},
+		editIndexHref() {
+			let url = this.openIndex + '?action=edit';
+			const summary = getPagelistSummary( this.wikisource );
+			if ( summary ) {
+				url += '&summary=' + summary;
+			}
 			return url;
 		}
 	},

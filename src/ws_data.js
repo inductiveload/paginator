@@ -110,8 +110,23 @@ const wikisourceDomains = [
 	'pl', 'pms', 'pt', 'ro', 'ru', 'sa', 'sl', 'sv', 'te', 'vec', 'vi', 'zh'
 ];
 
+const getPagelistSummary = function ( domain ) {
+	const toolUrl = 'toolforge:ws-page-game';
+
+	let summary = {
+		en: null
+	}[ domain ];
+
+	if ( !summary ) {
+		summary = `Add pagelist (using [[${toolUrl}|The WS Page Game]])`;
+	}
+
+	return summary;
+};
+
 module.exports = {
 	indexToCheckCategoryByDomain,
 	getIndexNs,
-	wikisourceDomains
+	wikisourceDomains,
+	getPagelistSummary
 };
