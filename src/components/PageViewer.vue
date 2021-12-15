@@ -50,6 +50,7 @@ const OpenSeadragon = require( 'openseadragon' );
 
 import { ScaleToOriginal, ZoomIn, ZoomOut } from '@element-plus/icons-vue';
 import { mapState } from 'vuex';
+import { ref } from 'vue';
 
 export default {
 	name: 'PageViewer',
@@ -62,6 +63,7 @@ export default {
 	},
 	watch: {
 		changeIndex() {
+			this.resetZoomOnNextLoad = true;
 			this.reload();
 		},
 		currentPage() {
@@ -134,7 +136,7 @@ export default {
 				}
 			}
 
-			if ( params !== undefined ) {
+			if ( params !== undefined && !this.resetZoomOnNextLoad ) {
 				this.viewer.viewport.setRotation( params.rotation );
 				this.viewer.viewport.setRotation( params.zoom );
 				this.viewer.viewport.panTo(
@@ -142,6 +144,8 @@ export default {
 			} else {
 				this.viewer.viewport.goHome();
 			}
+
+			this.resetZoomOnNextLoad = false;
 		} );
 
 		this.viewer.addHandler( 'viewport-change', () => {
@@ -168,7 +172,8 @@ export default {
 		return {
 			ScaleToOriginal,
 			ZoomIn,
-			ZoomOut
+			ZoomOut,
+			resetZoomOnNextLoad: ref( false )
 		};
 	}
 };
