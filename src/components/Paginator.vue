@@ -59,6 +59,7 @@
 							placeholder="Page number"
 							@keyup.enter="onPagenumberInput( this.pageNumber )"
 							clearable
+							autocapitalize=none
 							:disabled="disableInputs"
 						/>
 					</el-form-item>
