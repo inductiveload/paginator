@@ -155,6 +155,20 @@ describe( 'Page range merge left over right', () => {
 	} );
 } );
 
+describe( 'Page range numerically consistent, but different formats', () => {
+
+	it( 'merge', function () {
+		const pl = new PL.Pagelist();
+		pl.addRange( new PL.NumericRange( 1, 3, 1, 'arabic' ) );
+		pl.addRange( new PL.NumericRange( 4, 5, 'iv', 'roman' ) );
+
+		pl.mergeRanges();
+
+		// should NOT merge these
+		assert.equal( pl.rangeCount(), 2 );
+	} );
+} );
+
 describe( 'Pagelist format', () => {
 
 	it( 'arabic', function () {
@@ -172,7 +186,7 @@ describe( 'Pagelist format', () => {
 	} );
 
 	it( 'roman', function () {
-		const pr = new PL.NumericRange( 100, 200, 10, 'roman' );
+		const pr = new PL.NumericRange( 100, 200, 'x', 'roman' );
 
 		// < 1
 		assert.equal( pr.formatPosition( 50 ), null );

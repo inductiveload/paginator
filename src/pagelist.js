@@ -47,15 +47,17 @@ class NumericRange extends PageRange {
 	}
 
 	getNumericValue( value ) {
-		if ( Number.isInteger( value ) ) {
-			return value;
+		if ( this.format === 'arabic' ) {
+			if ( Number.isInteger( value ) ) {
+				return value;
+			} else if ( /^[0-9]+$/.test( value ) ) {
+				return parseInt( value );
+			}
 		}
 
-		if ( this.format === 'arabic' && /^[0-9]+$/.test( value ) ) {
-			return parseInt( value );
-		}
-
-		if ( this.format === 'roman' || this.format === 'highroman' ) {
+		if ( typeof value === 'string' &&
+			( this.format === 'roman' || this.format === 'highroman' ) ) {
+			console.log( value );
 			const romanValue = Roman.romanToInt( value );
 			if ( romanValue ) {
 				return romanValue;
@@ -71,6 +73,7 @@ class NumericRange extends PageRange {
 	 * @returns if the given value at the given position would fit into this range
 	 */
 	isConsistent( position, value ) {
+		console.log( value );
 		const numericValue = this.getNumericValue( value );
 
 		// not a number we can handle
@@ -224,14 +227,13 @@ function createPageRange( from, to, value ) {
 	if ( /^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/i.test( value ) ) {
 		const lower = value.toLowerCase() === value;
 		const upper = value.toUpperCase() === value;
-		const num = Roman.romanToInt( value );
 
 		if ( lower ) {
-			return new NumericRange( from, to, num, 'roman' );
+			return new NumericRange( from, to, value, 'roman' );
 		}
 
 		if ( upper ) {
-			return new NumericRange( from, to, num, 'highroman' );
+			return new NumericRange( from, to, value, 'highroman' );
 		}
 		// mixed case? treat as literal then
 	}
