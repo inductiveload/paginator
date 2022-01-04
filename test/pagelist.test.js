@@ -1,6 +1,55 @@
 const assert = require( 'assert' );
 const PL = require( '../src/pagelist.js' );
 
+describe( 'Arabic page ranges', () => {
+
+	it( 'basic', function () {
+		const pr = new PL.NumericRange( 1, 3, 1, 'arabic' );
+
+		assert.equal( pr.from, 1 );
+		assert.equal( pr.to, 3 );
+		assert.equal( pr.length(), 3 );
+	} );
+} );
+
+describe( 'Roman page ranges', () => {
+
+	it( 'low roman', function () {
+		const pr = new PL.NumericRange( 1, 3, 'i', 'roman' );
+
+		assert.equal( pr.from, 1 );
+		assert.equal( pr.to, 3 );
+		assert.equal( pr.length(), 3 );
+	} );
+
+	it( 'high roman', function () {
+		const pr = new PL.NumericRange( 1, 3, 'I', 'highroman' );
+
+		assert.equal( pr.from, 1 );
+		assert.equal( pr.to, 3 );
+		assert.equal( pr.length(), 3 );
+		assert.equal( pr.startValue, 1 );
+
+		// check consistencies
+		assert.equal( pr.isConsistent( 4, 4 ), false );
+		assert.equal( pr.isConsistent( 4, 'IV' ), true );
+		assert.equal( pr.isConsistent( 4, 'iv' ), false );
+	} );
+
+	it( 'high roman start=4', function () {
+		const pr = new PL.NumericRange( 4, 6, 'IV', 'highroman' );
+
+		assert.equal( pr.from, 4 );
+		assert.equal( pr.to, 6 );
+		assert.equal( pr.length(), 3 );
+		assert.equal( pr.startValue, 4 );
+
+		// check consistencies
+		assert.equal( pr.isConsistent( 1, 1 ), false );
+		assert.equal( pr.isConsistent( 1, 'I' ), true );
+	} );
+} );
+
 describe( 'Page range length', () => {
 
 	it( 'length 1', function () {

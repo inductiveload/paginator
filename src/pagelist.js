@@ -47,21 +47,27 @@ class NumericRange extends PageRange {
 	}
 
 	getNumericValue( value ) {
-		if ( this.format === 'arabic' ) {
-			if ( Number.isInteger( value ) ) {
-				return value;
-			} else if ( /^[0-9]+$/.test( value ) ) {
-				return parseInt( value );
-			}
-		}
+		switch ( this.format ) {
+			case 'arabic':
+				if ( Number.isInteger( value ) ) {
+					return value;
+				} else if ( /^[0-9]+$/.test( value ) ) {
+					return parseInt( value );
+				}
+				break;
+			case 'roman':
+			case 'highroman':
+				if ( typeof value === 'string' ) {
+					const cased = ( this.format === 'roman' ) ? value.toLowerCase() : value.toUpperCase();
 
-		if ( typeof value === 'string' &&
-			( this.format === 'roman' || this.format === 'highroman' ) ) {
-			console.log( value );
-			const romanValue = Roman.romanToInt( value );
-			if ( romanValue ) {
-				return romanValue;
-			}
+					if ( cased === value ) {
+						const romanValue = Roman.romanToInt( value );
+						if ( romanValue ) {
+							return romanValue;
+						}
+					}
+				}
+				break;
 		}
 
 		return null;
@@ -73,7 +79,6 @@ class NumericRange extends PageRange {
 	 * @returns if the given value at the given position would fit into this range
 	 */
 	isConsistent( position, value ) {
-		console.log( value );
 		const numericValue = this.getNumericValue( value );
 
 		// not a number we can handle
@@ -215,6 +220,14 @@ class LiteralRange extends PageRange {
 	}
 }
 
+/**
+ * Create a page range with automatic format detection
+ *
+ * @param {int} from
+ * @param {int} to
+ * @param {string} value
+ * @returns
+ */
 function createPageRange( from, to, value ) {
 
 	if ( /^[1-9][0-9]*$/.test( value ) ) {
@@ -228,14 +241,17 @@ function createPageRange( from, to, value ) {
 		const lower = value.toLowerCase() === value;
 		const upper = value.toUpperCase() === value;
 
-		if ( lower ) {
-			return new NumericRange( from, to, value, 'roman' );
-		}
-
 		if ( upper ) {
 			return new NumericRange( from, to, value, 'highroman' );
 		}
-		// mixed case? treat as literal then
+
+		// mixed case, capital then lowercase: treat as lowercase because this
+		// is an annoying UX issue with some mobile keyboards
+		if ( lower || /^[A-Z][a-z]+/.test( value ) ) {
+			return new NumericRange( from, to, value.toLowerCase(), 'roman' );
+		}
+
+		// other mixed case? treat as literal then
 	}
 
 	// No idea: must be literal
